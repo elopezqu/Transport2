@@ -61,7 +61,7 @@ io.on('connection', (socket) => {
     
     // Transmitir a todos los demás en la misma sala
     socket.to(data.roomId).emit('user-location', data);
-    console.log(`Ubicación actualizada para usuario ${data.userId} en sala ${data.roomId}`);
+    //console.log(`Ubicación actualizada para usuario ${data.userId} en sala ${data.roomId}`);
   });
 
   // Enviar ubicaciones existentes al nuevo usuario
