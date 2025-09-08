@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento Compartido - Mapbox & WebSockets</title>
+    
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css' rel='stylesheet' />
+    
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #4269e1 0%, #3a63d6 100%);
+            color: white;
+            padding: 1.2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            border-radius: 0;
+        }
+        
+        .sidebar {
+            width: 380px;
+            background-color: white;
+            padding: 1.5rem;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #3a63d6;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card h2 i {
+            font-size: 1.4rem;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4caf50;
+        }
+        
+        .status-indicator.inactive {
+            background-color: #f44336;
+        }
+        
+        .status-indicator.connected {
+            background-color: #4caf50;
+        }
+        
+        .coordinates {
+            background-color: #eeeeee;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 0.8rem 0;
+        }
+        
+        button {
+            background-color: #4269e1;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        button:hover {
+            background-color: #3a63d6;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .instructions {
+            line-height: 1.6;
+        }
+        
+        .instructions ol {
+            margin-left: 1.2rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background-color: #eeeeee;
+            border-radius: 8px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #333;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+        }
+        
+        .server-config {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .server-url {
+            flex: 1;
+        }
+        
+        .server-port {
+            width: 100px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .map-container {
+                height: 400px;
+                order: 1;
+            }
+            
+            .server-config {
+                flex-direction: column;
+            }
+            
+            .server-port {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Seguimiento Compartido en Tiempo Real</h1>
+            <p>Mapbox + WebSockets - Ver ubicación de otros usuarios</p>
+        </header>
+        
+        <div class="content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="card">
+                    <h2><i>🔗</i> Conexión</h2>
+                    <div class="status">
+                        <div class="status-indicator inactive" id="connection-indicator"></div>
+                        <span id="connection-text">Desconectado</span>
+                    </div>
+                    
+                    <input type="text" id="username" placeholder="Tu nombre de usuario" value="Usuario1">
+                    
+                    <div class="server-config">
+                        <input type="text" id="server-url" class="server-url" placeholder="URL del servidor" value="localhost">
+                        <input type="text" id="server-port" class="server-port" placeholder="Puerto" value="3000">
+                    </div>
+                    
+                    <input type="text" id="room-id" placeholder="ID de sala (opcional)" value="sala-1">
+                    
+                    <button id="connect-btn">Conectar al Servidor</button>
+                    <button id="disconnect-btn" disabled>Desconectar</button>
+                </div>
+                
+                <div class="card">
+                    <h2><i>👥</i> Usuarios Conectados</h2>
+                    <div class="user-list" id="user-list">
+                        <div class="user-item">
+                            <div class="user-info">
+                                <div class="user-color" style="background-color: #4269e1;"></div>
+                                <span>Ningún usuario conectado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2><i>📍</i> Mi Ubicación</h2>
+                    <div class="status">
+                        <div class="status-indicator inactive" id="tracking-indicator"></div>
+                        <span id="tracking-text">Seguimiento inactivo</span>
+                    </div>
+                    <div class="coordinates">
+                        Latitud: <span id="lat">--</span><br>
+                        Longitud: <span id="lng">--</span><br>
+                        Exactitud: <span id="accuracy">--</span> m
+                    </div>
+                    <button id="toggle-tracking">Iniciar Seguimiento</button>
+                </div>
+                
+                <div class="card">
+                    <h2><i>ℹ️</i> Instrucciones</h2>
+                    <div class="instructions">
+                        <ol>
+                            <li>Ingresa tu nombre de usuario</li>
+                            <li>Configura la URL y puerto de tu servidor</li>
+                            <li>Conecta al servidor con el botón "Conectar"</li>
+                            <li>Inicia el seguimiento de tu ubicación</li>
+                            <li>Los demás usuarios verán tu ubicación en tiempo real</li>
+                            <li>También verás la ubicación de otros usuarios en el mapa</li>
+                        </ol>
+                        <p><strong>Nota:</strong> Asegúrate de que tu servidor esté ejecutándose.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Seguimiento Compartido con Mapbox y WebSockets | Para fines educativos</p>
+        </footer>
+    </div>
+
+    <script>
+        // Reemplaza esto con tu token de Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FicmllbDI5LXMiLCJhIjoiY20yMnZvYnExMDJwNzJqcTV3d3J3cmUxdSJ9.fA3z9inzGxKvS2GC_rH20g';
+        
+        // Elementos de la interfaz
+        const connectBtn = document.getElementById('connect-btn');
+        const disconnectBtn = document.getElementById('disconnect-btn');
+        const connectionIndicator = document.getElementById('connection-indicator');
+        const connectionText = document.getElementById('connection-text');
+        const toggleTrackingBtn = document.getElementById('toggle-tracking');
+        const trackingIndicator = document.getElementById('tracking-indicator');
+        const trackingText = document.getElementById('tracking-text');
+        const latElement = document.getElementById('lat');
+        const lngElement = document.getElementById('lng');
+        const accuracyElement = document.getElementById('accuracy');
+        const userList = document.getElementById('user-list');
+        const usernameInput = document.getElementById('username');
+        const serverUrlInput = document.getElementById('server-url');
+        const serverPortInput = document.getElementById('server-port');
+        const roomIdInput = document.getElementById('room-id');
+        
+        // Variables para el mapa, seguimiento y sockets
+        let map;
+        let userMarker;
+        let otherUsersMarkers = {};
+        let watchId = null;
+        let isTracking = false;
+        let socket = null;
+        let isConnected = false;
+        let userId = generateUserId();
+        
+        // Colores para los diferentes usuarios
+        const userColors = [
+            '#4269e1', '#e14f42', '#42e16a', '#e1d142', 
+            '#9c42e1', '#e1429c', '#42e1c9', '#e18942'
+        ];
+        
+        // Inicializar el mapa
+        function initMap() {
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [-74.006, 40.7128], // Nueva York por defecto
+                zoom: 13
+            });
+            
+            // Agregar controles de navegación
+            map.addControl(new mapboxgl.NavigationControl());
+            
+            // Cargar el mapa
+            map.on('load', () => {
+                console.log('Mapa cargado correctamente');
+            });
+        }
+        
+        // Generar un ID único para el usuario
+        function generateUserId() {
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
+        
+        // Conectar al servidor de WebSockets
+        function connectToServer() {
+            const username = usernameInput.value || 'UsuarioAnónimo';
+            const serverUrl = serverUrlInput.value || 'localhost';
+            const serverPort = serverPortInput.value || '3000';
+            const roomId = roomIdInput.value || 'default-room';
+            
+            // Construir la URL completa del servidor
+            const serverFullUrl = `http://${serverUrl}:${serverPort}`;
+            
+            console.log(`Conectando a ${serverFullUrl} como ${username} (${userId})...`);
+            
+            // Conectar con el servidor Socket.io
+            try {
+                socket = io(serverFullUrl);
+                
+                // Configurar manejadores de eventos del socket
+                socket.on('connect', () => {
+                    console.log('Conectado al servidor con ID:', socket.id);
+                    
+                    isConnected = true;
+                    connectionIndicator.classList.remove('inactive');
+                    connectionIndicator.classList.add('connected');
+                    connectionText.textContent = 'Conectado';
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                    usernameInput.disabled = true;
+                    serverUrlInput.disabled = true;
+                    serverPortInput.disabled = true;
+                    roomIdInput.disabled = true;
+                    
+                    // Unirse a la sala
+                    socket.emit('join-room', roomId);
+                    
+                    // Solicitar ubicaciones existentes
+                    socket.emit('request-locations', roomId);
+                });
+                
+                socket.on('disconnect', () => {
+                    console.log('Desconectado del servidor');
+                    handleDisconnection();
+                });
+                
+                socket.on('connect_error', (error) => {
+                    console.error('Error de conexión:', error);
+                    alert(`Error al conectar con el servidor: ${error.message}`);
+                    handleDisconnection();
+                });
+                
+                // Recibir ubicación de otro usuario
+                socket.on('user-location', (data) => {
+                    console.log('Ubicación recibida de otro usuario:', data);
+                    updateOtherUserPosition(data);
+                });
+                
+                // Recibir ubicaciones existentes al conectarse
+                socket.on('existing-locations', (locations) => {
+                    console.log('Ubicaciones existentes recibidas:', locations);
+                    locations.forEach(location => {
+                        updateOtherUserPosition(location);
+                    });
+                });
+                
+                // Usuario desconectado
+                socket.on('user-disconnected', (userId) => {
+                    console.log('Usuario desconectado:', userId);
+                    removeOtherUserMarker(userId);
+                });
+                
+            } catch (error) {
+                console.error('Error al conectar con el servidor:', error);
+                alert('Error al conectar con el servidor. Verifica la URL y puerto.');
+            }
+        }
+        
+        // Manejar la desconexión
+        function handleDisconnection() {
+            isConnected = false;
+            connectionIndicator.classList.remove('connected');
+            connectionIndicator.classList.add('inactive');
+            connectionText.textContent = 'Desconectado';
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            usernameInput.disabled = false;
+            serverUrlInput.disabled = false;
+            serverPortInput.disabled = false;
+            roomIdInput.disabled = false;
+            
+            // Eliminar marcadores de otros usuarios
+            removeAllOtherUserMarkers();
+            
+            // Actualizar lista de usuarios
+            userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-color" style="background-color: #4269e1;"></div><span>Ningún usuario conectado</span></div></div>';
+        }
+        
+        // Desconectar del servidor
+        function disconnectFromServer() {
+            if (socket) {
+                console.log('Desconectando del servidor...');
+                socket.disconnect();
+                socket = null;
+            }
+            handleDisconnection();
+        }
+        
+        // Iniciar o detener el seguimiento de ubicación
+        function toggleTracking() {
+            if (isTracking) {
+                stopTracking();
+            } else {
+                startTracking();
+            }
+        }
+        
+        // Iniciar el seguimiento de ubicación
+        function startTracking() {
+            if (!navigator.geolocation) {
+                alert('Geolocalización no es soportada por tu navegador');
+                return;
+            }
+            
+            // Actualizar interfaz
+            isTracking = true;
+            trackingIndicator.classList.remove('inactive');
+            trackingText.textContent = 'Seguimiento activo';
+            toggleTrackingBtn.textContent = 'Detener Seguimiento';
+            
+            // Opciones para la geolocalización
+            const options = {
+                enableHighAccuracy: true,
+                maximumAge: 30000,
+                timeout: 27000
+            };
+            
+            // Obtener ubicación actual
+            navigator.geolocation.getCurrentPosition(
+                position => updatePosition(position),
+                error => handleError(error),
+                options
+            );
+            
+            // Observar cambios de ubicación
+            watchId = navigator.geolocation.watchPosition(
+                position => updatePosition(position),
+                error => handleError(error),
+                options
+            );
+        }
+        
+        // Detener el seguimiento de ubicación
+        function stopTracking() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            // Actualizar interfaz
+            isTracking = false;
+            trackingIndicator.classList.add('inactive');
+            trackingText.textContent = 'Seguimiento inactivo';
+            toggleTrackingBtn.textContent = 'Iniciar Seguimiento';
+        }
+        
+        // Actualizar la posición en el mapa
+        function updatePosition(position) {
+            const { latitude, longitude, accuracy } = position.coords;
+            
+            // Actualizar la interfaz con las coordenadas
+            latElement.textContent = latitude.toFixed(6);
+            lngElement.textContent = longitude.toFixed(6);
+            accuracyElement.textContent = accuracy.toFixed(2);
+            
+            // Centrar el mapa en la nueva ubicación
+            map.flyTo({
+                center: [longitude, latitude],
+                zoom: 15,
+                speed: 1.5
+            });
+            
+            // Actualizar o crear el marcador
+            if (!userMarker) {
+                // Crear un elemento personalizado para el marcador
+                const el = document.createElement('div');
+                el.className = 'user-marker';
+                el.style.width = '20px';
+                el.style.height = '20px';
+                el.style.backgroundColor = '#4269e1';
+                el.style.borderRadius = '50%';
+                el.style.border = '3px solid white';
+                el.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
+                
+                userMarker = new mapboxgl.Marker(el)
+                    .setLngLat([longitude, latitude])
+                    .addTo(map);
+            } else {
+                userMarker.setLngLat([longitude, latitude]);
+            }
+            
+            // Enviar la ubicación al servidor si está conectado
+            if (isConnected && socket) {
+                const username = usernameInput.value || 'UsuarioAnónimo';
+                const roomId = roomIdInput.value || 'default-room';
+                
+                const locationData = {
+                    userId: userId,
+                    username: username,
+                    roomId: roomId,
+                    latitude: latitude,
+                    longitude: longitude,
+                    accuracy: accuracy,
+                    timestamp: new Date().toISOString()
+                };
+                
+                socket.emit('location-update', locationData);
+            }
+        }
+        
+        // Manejar errores de geolocalización
+        function handleError(error) {
+            console.error('Error obteniendo la ubicación:', error);
+            
+            let errorMessage;
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = 'Permiso de ubicación denegado. Por favor, habilita los permisos de ubicación en tu navegador.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = 'Información de ubicación no disponible.';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = 'Tiempo de espera para obtener la ubicación agotado.';
+                    break;
+                default:
+                    errorMessage = 'Error desconocido al obtener la ubicación.';
+            }
+            
+            alert(errorMessage);
+            stopTracking();
+        }
+        
+        // Actualizar la ubicación de otro usuario en el mapa
+        function updateOtherUserPosition(userData) {
+            // No actualizar nuestra propia ubicación
+            if (userData.userId === userId) return;
+            
+            // Si ya existe un marcador para este usuario, actualizarlo
+            if (otherUsersMarkers[userData.userId]) {
+                otherUsersMarkers[userData.userId].setLngLat([userData.longitude, userData.latitude]);
+            } else {
+                // Crear un nuevo marcador para este usuario
+                const colorIndex = Math.abs(hashCode(userData.userId)) % userColors.length;
+                const color = userColors[colorIndex];
+                
+                const el = document.createElement('div');
+                el.className = 'user-marker';
+                el.style.width = '16px';
+                el.style.height = '16px';
+                el.style.backgroundColor = color;
+                el.style.borderRadius = '50%';
+                el.style.border = '2px solid white';
+                el.style.boxShadow = '0 0 8px rgba(0, 0, 0, 0.3)';
+                
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([userData.longitude, userData.latitude])
+                    .addTo(map);
+                
+                // Añadir popup con el nombre de usuario
+                marker.setPopup(new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`<strong>${userData.username}</strong>`));
+                
+                otherUsersMarkers[userData.userId] = marker;
+                
+                // Actualizar la lista de usuarios
+                updateUserList(userData, color, 'add');
+            }
+        }
+        
+        // Eliminar marcador de usuario desconectado
+        function removeOtherUserMarker(userId) {
+            if (otherUsersMarkers[userId]) {
+                otherUsersMarkers[userId].remove();
+                delete otherUsersMarkers[userId];
+                
+                // Actualizar la lista de usuarios
+                updateUserList({userId: userId}, null, 'remove');
+            }
+        }
+        
+        // Eliminar todos los marcadores de otros usuarios
+        function removeAllOtherUserMarkers() {
+            for (const userId in otherUsersMarkers) {
+                otherUsersMarkers[userId].remove();
+            }
+            otherUsersMarkers = {};
+        }
+        
+        // Actualizar la lista de usuarios conectados
+        function updateUserList(userData, color, action) {
+            if (action === 'add') {
+                // Evitar duplicados
+                if (document.getElementById(`user-${userData.userId}`)) {
+                    return;
+                }
+                
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.id = `user-${userData.userId}`;
+                
+                userItem.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-color" style="background-color: ${color};"></div>
+                        <span>${userData.username}</span>
+                    </div>
+                    <div class="user-status">Conectado</div>
+                `;
+                
+                // Si es la lista vacía por defecto, reemplazarla
+                if (userList.innerHTML.includes('Ningún usuario conectado')) {
+                    userList.innerHTML = '';
+                }
+                
+                userList.appendChild(userItem);
+            } else if (action === 'remove') {
+                const userElement = document.getElementById(`user-${userData.userId}`);
+                if (userElement) {
+                    userElement.remove();
+                }
+                
+                // Si no hay usuarios, mostrar mensaje
+                if (userList.children.length === 0) {
+                    userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-color" style="background-color: #4269e1;"></div><span>Ningún usuario conectado</span></div></div>';
+                }
+            }
+        }
+        
+        // Función hash para generar un índice de color consistente para cada usuario
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return hash;
+        }
+        
+        // Inicializar la aplicación cuando se cargue la página
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            connectBtn.addEventListener('click', connectToServer);
+            disconnectBtn.addEventListener('click', disconnectFromServer);
+            toggleTrackingBtn.addEventListener('click', toggleTracking);
+        });
+    </script>
+</body>
+</html>
