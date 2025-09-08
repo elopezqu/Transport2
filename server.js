@@ -6,14 +6,23 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
+
+// Configuración de CORS para Express (más específica)
+app.use(cors({
+  origin: "https://elopezqu.github.io",
+  credentials: true
+}));
+
+// Configuración de Socket.io corregida
 const io = socketIo(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+    origin: "https://elopezqu.github.io",
+    methods: ["GET", "POST"],
+    credentials: true, // Añadido para permitir credenciales
+    allowedHeaders: ["Content-Type"] // Añadido para headers personalizados
   }
 });
 
-app.use(cors());
 app.use(express.static('public'));
 
 // Almacenar ubicaciones de usuarios
@@ -49,10 +58,17 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Usuario desconectado:', socket.id);
     // Eliminar usuario de las ubicaciones (opcional)
+    for (let userId in userLocations) {
+      if (userLocations[userId].socketId === socket.id) {
+        delete userLocations[userId];
+        break;
+      }
+    }
   });
 });
 
+// Usar puerto 3000 o el proporcionado por el entorno
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => { // Escuchar en todas las interfaces
   console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });
