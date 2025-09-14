@@ -119,7 +119,6 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background-color: #4caf50;
         }
         
         .status-indicator.inactive {
@@ -128,6 +127,17 @@
         
         .status-indicator.connected {
             background-color: #4caf50;
+        }
+        
+        .status-indicator.tracking {
+            background-color: #4269e1;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
         
         .coordinates {
@@ -247,6 +257,7 @@
             background: #f0f0f0;
             cursor: pointer;
             border-right: 1px solid #ddd;
+            font-size: 0.85rem;
         }
         
         .mobile-tab:last-child {
@@ -256,6 +267,24 @@
         .mobile-tab.active {
             background: #4269e1;
             color: white;
+        }
+        
+        .debug-info {
+            background-color: #f8f8f8;
+            border-left: 4px solid #4269e1;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            display: none;
+        }
+        
+        .debug-toggle {
+            color: #4269e1;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: block;
         }
         
         /* Estilos para desktop */
@@ -351,6 +380,11 @@
                 padding: 0.6rem;
                 font-size: 0.85rem;
             }
+            
+            .mobile-tab {
+                font-size: 0.75rem;
+                padding: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -383,15 +417,23 @@
                     
                     <input type="text" id="username" placeholder="Tu nombre de usuario" value="Usuario1">
                     
-                    <!--<div class="server-config">
+                    <div class="server-config">
                         <input type="text" id="server-url" class="server-url" placeholder="URL del servidor" value="misdominios.dev">
                         <input type="text" id="server-port" class="server-port" placeholder="Puerto" value="" disabled>
-                    </div>-->
+                    </div>
                     
                     <input type="text" id="room-id" placeholder="ID de sala (opcional)" value="sala-1">
                     
                     <button id="connect-btn">Conectar al Servidor</button>
                     <button id="disconnect-btn" disabled>Desconectar</button>
+                    
+                    <span class="debug-toggle" id="debug-toggle">Mostrar información de depuración</span>
+                    <div class="debug-info" id="debug-info">
+                        <div>ID de usuario: <span id="debug-user-id"></span></div>
+                        <div>ID de socket: <span id="debug-socket-id"></span></div>
+                        <div>Usuarios en mapa: <span id="debug-users-count">0</span></div>
+                        <div>Estado: <span id="debug-status">Sin conexión</span></div>
+                    </div>
                 </div>
                 
                 <div class="card tab-content" id="users-tab">
@@ -432,6 +474,7 @@
                             <li>También verás la ubicación de otros usuarios en el mapa</li>
                         </ol>
                         <p><strong>Nota:</strong> Asegúrate de que tu servidor esté ejecutándose.</p>
+                        <p><strong>Solución de problemas:</strong> Si no ves a otros usuarios, verifica que estén en la misma sala y que hayan iniciado el seguimiento de ubicación.</p>
                     </div>
                 </div>
             </div>
@@ -464,6 +507,12 @@
         const roomIdInput = document.getElementById('room-id');
         const mobileTabs = document.getElementById('mobile-tabs');
         const tabContents = document.querySelectorAll('.tab-content');
+        const debugToggle = document.getElementById('debug-toggle');
+        const debugInfo = document.getElementById('debug-info');
+        const debugUserId = document.getElementById('debug-user-id');
+        const debugSocketId = document.getElementById('debug-socket-id');
+        const debugUsersCount = document.getElementById('debug-users-count');
+        const debugStatus = document.getElementById('debug-status');
         
         // Variables para el mapa, seguimiento y sockets
         let map;
@@ -474,6 +523,7 @@
         let socket = null;
         let isConnected = false;
         let userId = generateUserId();
+        let currentRoomId = '';
         
         // Colores para los diferentes usuarios
         const userColors = [
@@ -496,6 +546,7 @@
             // Cargar el mapa
             map.on('load', () => {
                 console.log('Mapa cargado correctamente');
+                debugStatus.textContent = 'Mapa cargado';
             });
         }
         
@@ -507,13 +558,14 @@
         // Conectar al servidor de WebSockets
         function connectToServer() {
             const username = usernameInput.value || 'UsuarioAnónimo';
-            const serverUrl = 'misdominios.dev';
-            const roomId = roomIdInput.value || 'default-room';
+            const serverUrl = serverUrlInput.value || 'misdominios.dev';
+            currentRoomId = roomIdInput.value || 'default-room';
             
             // Ya no necesitamos el puerto, ya que usamos el mismo dominio
             const serverFullUrl = `https://${serverUrl}`;
             
-            console.log(`Conectando a ${serverFullUrl} como ${username} (${userId})...`);
+            console.log(`Conectando a ${serverFullUrl} como ${username} (${userId}) en sala ${currentRoomId}...`);
+            debugStatus.textContent = `Conectando a ${serverFullUrl}...`;
             
             // Conectar con el servidor Socket.io
             try {
@@ -524,6 +576,8 @@
                 // Configurar manejadores de eventos del socket
                 socket.on('connect', () => {
                     console.log('Conectado al servidor con ID:', socket.id);
+                    debugStatus.textContent = 'Conectado al servidor';
+                    debugSocketId.textContent = socket.id;
                     
                     isConnected = true;
                     connectionIndicator.classList.remove('inactive');
@@ -536,19 +590,25 @@
                     roomIdInput.disabled = true;
                     
                     // Unirse a la sala
-                    socket.emit('join-room', roomId);
+                    socket.emit('join-room', {
+                        roomId: currentRoomId,
+                        userId: userId,
+                        username: username
+                    });
                     
                     // Solicitar ubicaciones existentes
-                    socket.emit('request-locations', roomId);
+                    socket.emit('request-locations', currentRoomId);
                 });
                 
                 socket.on('disconnect', () => {
                     console.log('Desconectado del servidor');
+                    debugStatus.textContent = 'Desconectado del servidor';
                     handleDisconnection();
                 });
                 
                 socket.on('connect_error', (error) => {
                     console.error('Error de conexión:', error);
+                    debugStatus.textContent = `Error de conexión: ${error.message}`;
                     alert(`Error al conectar con el servidor: ${error.message}`);
                     handleDisconnection();
                 });
@@ -556,27 +616,61 @@
                 // Recibir ubicación de otro usuario
                 socket.on('user-location', (data) => {
                     console.log('Ubicación recibida de otro usuario:', data);
+                    debugStatus.textContent = `Ubicación recibida de ${data.username}`;
                     updateOtherUserPosition(data);
                 });
                 
                 // Recibir ubicaciones existentes al conectarse
                 socket.on('existing-locations', (locations) => {
                     console.log('Ubicaciones existentes recibidas:', locations);
+                    debugStatus.textContent = `Recibidas ${locations.length} ubicaciones existentes`;
+                    
+                    // Limpiar marcadores existentes primero
+                    removeAllOtherUserMarkers();
+                    
                     locations.forEach(location => {
                         updateOtherUserPosition(location);
                     });
+                    
+                    debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
+                });
+                
+                // Usuario conectado
+                socket.on('user-connected', (userData) => {
+                    console.log('Usuario conectado:', userData);
+                    debugStatus.textContent = `${userData.username} se ha conectado`;
+                    
+                    // Actualizar lista de usuarios
+                    updateUserList(userData, getColorForUserId(userData.userId), 'add');
                 });
                 
                 // Usuario desconectado
-                socket.on('user-disconnected', (userId) => {
-                    console.log('Usuario desconectado:', userId);
-                    removeOtherUserMarker(userId);
+                socket.on('user-disconnected', (userData) => {
+                    console.log('Usuario desconectado:', userData);
+                    debugStatus.textContent = `${userData.username} se ha desconectado`;
+                    removeOtherUserMarker(userData.userId);
+                    
+                    // Actualizar lista de usuarios
+                    updateUserList(userData, null, 'remove');
+                });
+                
+                // Confirmación de unión a sala
+                socket.on('room-joined', (data) => {
+                    console.log('Unido a la sala:', data);
+                    debugStatus.textContent = `Unido a la sala: ${data.roomId}`;
                 });
                 
             } catch (error) {
                 console.error('Error al conectar con el servidor:', error);
+                debugStatus.textContent = `Error: ${error.message}`;
                 alert('Error al conectar con el servidor. Verifica la URL.');
             }
+        }
+        
+        // Obtener color para un ID de usuario
+        function getColorForUserId(userId) {
+            const colorIndex = Math.abs(hashCode(userId)) % userColors.length;
+            return userColors[colorIndex];
         }
         
         // Manejar la desconexión
@@ -591,17 +685,27 @@
             serverUrlInput.disabled = false;
             roomIdInput.disabled = false;
             
+            // Detener seguimiento si estaba activo
+            if (isTracking) {
+                stopTracking();
+            }
+            
             // Eliminar marcadores de otros usuarios
             removeAllOtherUserMarkers();
             
             // Actualizar lista de usuarios
             userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-color" style="background-color: #4269e1;"></div><span>Ningún usuario conectado</span></div></div>';
+            
+            debugStatus.textContent = 'Desconectado';
+            debugSocketId.textContent = 'N/A';
+            debugUsersCount.textContent = '0';
         }
         
         // Desconectar del servidor
         function disconnectFromServer() {
             if (socket) {
                 console.log('Desconectando del servidor...');
+                debugStatus.textContent = 'Desconectando...';
                 socket.disconnect();
                 socket = null;
             }
@@ -627,8 +731,10 @@
             // Actualizar interfaz
             isTracking = true;
             trackingIndicator.classList.remove('inactive');
+            trackingIndicator.classList.add('tracking');
             trackingText.textContent = 'Seguimiento activo';
             toggleTrackingBtn.textContent = 'Detener Seguimiento';
+            debugStatus.textContent = 'Seguimiento de ubicación activo';
             
             // Opciones para la geolocalización
             const options = {
@@ -661,9 +767,11 @@
             
             // Actualizar interfaz
             isTracking = false;
+            trackingIndicator.classList.remove('tracking');
             trackingIndicator.classList.add('inactive');
             trackingText.textContent = 'Seguimiento inactivo';
             toggleTrackingBtn.textContent = 'Iniciar Seguimiento';
+            debugStatus.textContent = 'Seguimiento de ubicación detenido';
         }
         
         // Actualizar la posición en el mapa
@@ -704,12 +812,11 @@
             // Enviar la ubicación al servidor si está conectado
             if (isConnected && socket) {
                 const username = usernameInput.value || 'UsuarioAnónimo';
-                const roomId = roomIdInput.value || 'default-room';
                 
                 const locationData = {
                     userId: userId,
                     username: username,
-                    roomId: roomId,
+                    roomId: currentRoomId,
                     latitude: latitude,
                     longitude: longitude,
                     accuracy: accuracy,
@@ -717,12 +824,14 @@
                 };
                 
                 socket.emit('location-update', locationData);
+                debugStatus.textContent = 'Enviando ubicación...';
             }
         }
         
         // Manejar errores de geolocalización
         function handleError(error) {
             console.error('Error obteniendo la ubicación:', error);
+            debugStatus.textContent = `Error de geolocalización: ${error.message}`;
             
             let errorMessage;
             switch(error.code) {
@@ -751,10 +860,10 @@
             // Si ya existe un marcador para este usuario, actualizarlo
             if (otherUsersMarkers[userData.userId]) {
                 otherUsersMarkers[userData.userId].setLngLat([userData.longitude, userData.latitude]);
+                debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
             } else {
                 // Crear un nuevo marcador para este usuario
-                const colorIndex = Math.abs(hashCode(userData.userId)) % userColors.length;
-                const color = userColors[colorIndex];
+                const color = getColorForUserId(userData.userId);
                 
                 const el = document.createElement('div');
                 el.className = 'user-marker';
@@ -771,12 +880,15 @@
                 
                 // Añadir popup con el nombre de usuario
                 marker.setPopup(new mapboxgl.Popup({ offset: 25 })
-                    .setHTML(`<strong>${userData.username}</strong>`));
+                    .setHTML(`<strong>${userData.username}</strong><br>Actualizado: ${new Date().toLocaleTimeString()}`));
                 
                 otherUsersMarkers[userData.userId] = marker;
                 
                 // Actualizar la lista de usuarios
                 updateUserList(userData, color, 'add');
+                
+                debugStatus.textContent = `Nuevo usuario: ${userData.username}`;
+                debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
             }
         }
         
@@ -788,6 +900,8 @@
                 
                 // Actualizar la lista de usuarios
                 updateUserList({userId: userId}, null, 'remove');
+                
+                debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
             }
         }
         
@@ -797,6 +911,7 @@
                 otherUsersMarkers[userId].remove();
             }
             otherUsersMarkers = {};
+            debugUsersCount.textContent = '0';
         }
         
         // Actualizar la lista de usuarios conectados
@@ -897,8 +1012,17 @@
             }
             
             // Ajustar el valor del servidor para usar HTTPS
-            //serverUrlInput.value = 'misdominios.dev';
-            //serverPortInput.style.display = 'none';
+            serverUrlInput.value = 'misdominios.dev';
+            serverPortInput.style.display = 'none';
+            
+            // Configurar información de depuración
+            debugUserId.textContent = userId;
+            
+            debugToggle.addEventListener('click', () => {
+                debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+                debugToggle.textContent = debugInfo.style.display === 'none' ? 
+                    'Mostrar información de depuración' : 'Ocultar información de depuración';
+            });
         });
     </script>
 </body>
