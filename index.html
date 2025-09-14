@@ -24,6 +24,7 @@
             background-color: #f5f5f5;
             color: #333;
             line-height: 1.6;
+            overflow-x: hidden;
         }
         
         .container {
@@ -35,29 +36,34 @@
         header {
             background: linear-gradient(90deg, #4269e1 0%, #3a63d6 100%);
             color: white;
-            padding: 1.2rem;
+            padding: 1rem;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
         }
         
         header h1 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             margin-bottom: 0.5rem;
         }
         
         header p {
-            font-size: 1rem;
+            font-size: 0.9rem;
             opacity: 0.9;
         }
         
         .content {
             display: flex;
             flex: 1;
+            flex-direction: column;
         }
         
         .map-container {
             flex: 1;
             position: relative;
+            height: 50vh;
+            order: 1;
         }
         
         #map {
@@ -69,26 +75,29 @@
         }
         
         .sidebar {
-            width: 380px;
+            width: 100%;
             background-color: white;
-            padding: 1.5rem;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.2rem;
+            order: 2;
+            max-height: 50vh;
+            overflow-y: auto;
         }
         
         .card {
             background-color: #f9f9f9;
             border-radius: 10px;
-            padding: 1.2rem;
+            padding: 1rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
             color: #3a63d6;
             display: flex;
             align-items: center;
@@ -96,19 +105,19 @@
         }
         
         .card h2 i {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
         }
         
         .status {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
         
         .status-indicator {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background-color: #4caf50;
         }
@@ -123,23 +132,25 @@
         
         .coordinates {
             background-color: #eeeeee;
-            padding: 0.8rem;
+            padding: 0.6rem;
             border-radius: 8px;
             font-family: monospace;
-            margin: 0.8rem 0;
+            margin: 0.6rem 0;
+            font-size: 0.85rem;
         }
         
         button {
             background-color: #4269e1;
             color: white;
             border: none;
-            padding: 0.8rem 1.2rem;
+            padding: 0.7rem 1rem;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: background-color 0.3s;
             width: 100%;
             margin-top: 0.5rem;
+            font-size: 0.9rem;
         }
         
         button:hover {
@@ -152,22 +163,23 @@
         }
         
         .instructions {
-            line-height: 1.6;
+            line-height: 1.5;
+            font-size: 0.9rem;
         }
         
         .instructions ol {
-            margin-left: 1.2rem;
+            margin-left: 1rem;
         }
         
         .instructions li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
         }
         
         .user-list {
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
-            max-height: 200px;
+            gap: 0.6rem;
+            max-height: 120px;
             overflow-y: auto;
         }
         
@@ -175,73 +187,169 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.8rem;
+            padding: 0.6rem;
             background-color: #eeeeee;
             border-radius: 8px;
+            font-size: 0.9rem;
         }
         
         .user-info {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
         
         .user-color {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
         }
         
         footer {
             text-align: center;
-            padding: 1rem;
+            padding: 0.8rem;
             background-color: #333;
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            order: 3;
         }
         
         input, select {
             width: 100%;
-            padding: 0.8rem;
+            padding: 0.7rem;
             border: 1px solid #ddd;
             border-radius: 8px;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.7rem;
+            font-size: 0.9rem;
         }
         
         .server-config {
             display: flex;
             gap: 0.5rem;
+            flex-direction: column;
         }
         
-        .server-url {
+        .server-url, .server-port {
+            width: 100%;
+        }
+        
+        .mobile-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .mobile-tab {
             flex: 1;
+            text-align: center;
+            padding: 0.7rem;
+            background: #f0f0f0;
+            cursor: pointer;
+            border-right: 1px solid #ddd;
         }
         
-        .server-port {
-            width: 100px;
+        .mobile-tab:last-child {
+            border-right: none;
         }
         
-        @media (max-width: 768px) {
+        .mobile-tab.active {
+            background: #4269e1;
+            color: white;
+        }
+        
+        /* Estilos para desktop */
+        @media (min-width: 769px) {
             .content {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                order: 2;
+                flex-direction: row;
             }
             
             .map-container {
-                height: 400px;
+                height: auto;
                 order: 1;
             }
             
+            .sidebar {
+                width: 380px;
+                order: 2;
+                max-height: none;
+            }
+            
             .server-config {
-                flex-direction: column;
+                flex-direction: row;
             }
             
             .server-port {
-                width: 100%;
+                width: 100px;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            header p {
+                font-size: 1rem;
+            }
+            
+            .card {
+                padding: 1.2rem;
+            }
+            
+            .card h2 {
+                font-size: 1.2rem;
+            }
+            
+            .coordinates {
+                padding: 0.8rem;
+                font-size: 1rem;
+            }
+            
+            button {
+                padding: 0.8rem 1.2rem;
+                font-size: 1rem;
+            }
+            
+            .user-item {
+                padding: 0.8rem;
+                font-size: 1rem;
+            }
+            
+            input, select {
+                padding: 0.8rem;
+                font-size: 1rem;
+            }
+            
+            .mobile-tabs {
+                display: none;
+            }
+        }
+
+        /* Mejoras para móviles muy pequeños */
+        @media (max-width: 360px) {
+            header h1 {
+                font-size: 1.3rem;
+            }
+            
+            header p {
+                font-size: 0.8rem;
+            }
+            
+            .card {
+                padding: 0.8rem;
+            }
+            
+            .card h2 {
+                font-size: 1rem;
+            }
+            
+            .coordinates {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            button {
+                padding: 0.6rem;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -258,8 +366,15 @@
                 <div id="map"></div>
             </div>
             
+            <div class="mobile-tabs" id="mobile-tabs">
+                <div class="mobile-tab active" data-tab="connection">Conexión</div>
+                <div class="mobile-tab" data-tab="users">Usuarios</div>
+                <div class="mobile-tab" data-tab="location">Ubicación</div>
+                <div class="mobile-tab" data-tab="instructions">Instrucciones</div>
+            </div>
+            
             <div class="sidebar">
-                <div class="card">
+                <div class="card tab-content" id="connection-tab">
                     <h2><i>🔗</i> Conexión</h2>
                     <div class="status">
                         <div class="status-indicator inactive" id="connection-indicator"></div>
@@ -268,10 +383,10 @@
                     
                     <input type="text" id="username" placeholder="Tu nombre de usuario" value="Usuario1">
                     
-                    <div class="server-config">
-                        <input type="text" id="server-url" class="server-url" placeholder="URL del servidor" value="134.199.194.61">
-                        <input type="text" id="server-port" class="server-port" placeholder="Puerto" value="3000">
-                    </div>
+                    <!--<div class="server-config">
+                        <input type="text" id="server-url" class="server-url" placeholder="URL del servidor" value="misdominios.dev">
+                        <input type="text" id="server-port" class="server-port" placeholder="Puerto" value="" disabled>
+                    </div>-->
                     
                     <input type="text" id="room-id" placeholder="ID de sala (opcional)" value="sala-1">
                     
@@ -279,7 +394,7 @@
                     <button id="disconnect-btn" disabled>Desconectar</button>
                 </div>
                 
-                <div class="card">
+                <div class="card tab-content" id="users-tab">
                     <h2><i>👥</i> Usuarios Conectados</h2>
                     <div class="user-list" id="user-list">
                         <div class="user-item">
@@ -291,7 +406,7 @@
                     </div>
                 </div>
                 
-                <div class="card">
+                <div class="card tab-content" id="location-tab">
                     <h2><i>📍</i> Mi Ubicación</h2>
                     <div class="status">
                         <div class="status-indicator inactive" id="tracking-indicator"></div>
@@ -305,12 +420,12 @@
                     <button id="toggle-tracking">Iniciar Seguimiento</button>
                 </div>
                 
-                <div class="card">
+                <div class="card tab-content" id="instructions-tab">
                     <h2><i>ℹ️</i> Instrucciones</h2>
                     <div class="instructions">
                         <ol>
                             <li>Ingresa tu nombre de usuario</li>
-                            <li>Configura la URL y puerto de tu servidor</li>
+                            <li>Configura la URL del servidor (misdominios.dev)</li>
                             <li>Conecta al servidor con el botón "Conectar"</li>
                             <li>Inicia el seguimiento de tu ubicación</li>
                             <li>Los demás usuarios verán tu ubicación en tiempo real</li>
@@ -347,6 +462,8 @@
         const serverUrlInput = document.getElementById('server-url');
         const serverPortInput = document.getElementById('server-port');
         const roomIdInput = document.getElementById('room-id');
+        const mobileTabs = document.getElementById('mobile-tabs');
+        const tabContents = document.querySelectorAll('.tab-content');
         
         // Variables para el mapa, seguimiento y sockets
         let map;
@@ -390,18 +507,19 @@
         // Conectar al servidor de WebSockets
         function connectToServer() {
             const username = usernameInput.value || 'UsuarioAnónimo';
-            const serverUrl = serverUrlInput.value || '134.199.194.61';
-            const serverPort = serverPortInput.value || '3000';
+            const serverUrl = 'misdominios.dev';
             const roomId = roomIdInput.value || 'default-room';
             
-            // Construir la URL completa del servidor
-            const serverFullUrl = `http://${serverUrl}:${serverPort}`;
+            // Ya no necesitamos el puerto, ya que usamos el mismo dominio
+            const serverFullUrl = `https://${serverUrl}`;
             
             console.log(`Conectando a ${serverFullUrl} como ${username} (${userId})...`);
             
             // Conectar con el servidor Socket.io
             try {
-                socket = io(serverFullUrl);
+                socket = io(serverFullUrl, {
+                    path: '/socket.io/'
+                });
                 
                 // Configurar manejadores de eventos del socket
                 socket.on('connect', () => {
@@ -415,7 +533,6 @@
                     disconnectBtn.disabled = false;
                     usernameInput.disabled = true;
                     serverUrlInput.disabled = true;
-                    serverPortInput.disabled = true;
                     roomIdInput.disabled = true;
                     
                     // Unirse a la sala
@@ -458,7 +575,7 @@
                 
             } catch (error) {
                 console.error('Error al conectar con el servidor:', error);
-                alert('Error al conectar con el servidor. Verifica la URL y puerto.');
+                alert('Error al conectar con el servidor. Verifica la URL.');
             }
         }
         
@@ -472,7 +589,6 @@
             disconnectBtn.disabled = true;
             usernameInput.disabled = false;
             serverUrlInput.disabled = false;
-            serverPortInput.disabled = false;
             roomIdInput.disabled = false;
             
             // Eliminar marcadores de otros usuarios
@@ -731,12 +847,58 @@
             return hash;
         }
         
+        // Funcionalidad para pestañas en móviles
+        function initMobileTabs() {
+            if (mobileTabs) {
+                const tabs = mobileTabs.querySelectorAll('.mobile-tab');
+                
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabName = tab.getAttribute('data-tab');
+                        
+                        // Activar pestaña clickeada
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        
+                        // Mostrar contenido correspondiente
+                        tabContents.forEach(content => {
+                            content.style.display = 'none';
+                        });
+                        
+                        document.getElementById(`${tabName}-tab`).style.display = 'block';
+                    });
+                });
+                
+                // Ocultar todos los contenidos inicialmente excepto el primero
+                tabContents.forEach((content, index) => {
+                    if (index > 0) {
+                        content.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // Verificar si es un dispositivo móvil
+        function isMobileDevice() {
+            return window.innerWidth <= 768;
+        }
+        
         // Inicializar la aplicación cuando se cargue la página
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
             connectBtn.addEventListener('click', connectToServer);
             disconnectBtn.addEventListener('click', disconnectFromServer);
             toggleTrackingBtn.addEventListener('click', toggleTracking);
+            
+            // Inicializar pestañas móviles si es necesario
+            if (isMobileDevice()) {
+                initMobileTabs();
+                mobileTabs.style.display = 'flex';
+            }
+            
+            // Ajustar el valor del servidor para usar HTTPS
+            //serverUrlInput.value = 'misdominios.dev';
+            //serverPortInput.style.display = 'none';
         });
     </script>
 </body>
