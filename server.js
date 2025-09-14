@@ -22,32 +22,34 @@ const io = socketIo(server, {
   }
 });
 
-// Alternativa para Socket.io si necesitas credenciales desde cualquier origen:
-// const io = socketIo(server, {
-//   cors: {
-//     origin: function(origin, callback) {
-//       // Permite cualquier origen (útil para desarrollo)
-//       return callback(null, true);
-//     },
-//     credentials: true,
-//     methods: ["GET", "POST"],
-//     allowedHeaders: ["Content-Type"]
-//   }
-// });
-
 app.use(express.static('public'));
 
-// Almacenar ubicaciones de usuarios
+// Almacenar ubicaciones y usuarios conectados
 const userLocations = {};
+const connectedUsers = {}; // Para almacenar userId, username y roomId por socket.id
 
 io.on('connection', (socket) => {
   console.log('Usuario conectado desde origen:', socket.handshake.headers.origin);
   console.log('ID de conexión:', socket.id);
 
-  // Unirse a una sala específica
-  socket.on('join-room', (roomId) => {
+  // Unirse a una sala específica con objeto
+  socket.on('join-room', (data) => {
+    const { roomId, userId, username } = data;
+    if (!roomId || !userId || !username) {
+      console.log('Datos incompletos para unirse a la sala:', data);
+      return;
+    }
+
     socket.join(roomId);
-    console.log(`Usuario ${socket.id} se unió a la sala ${roomId}`);
+    connectedUsers[socket.id] = { userId, username, roomId };
+
+    console.log(`Usuario ${username} (${userId}) se unió a la sala ${roomId}`);
+
+    // Emitir evento a los demás usuarios en la sala que un nuevo usuario se conectó
+    socket.to(roomId).emit('user-connected', { userId, username });
+
+    // Confirmar al usuario que se unió a la sala
+    socket.emit('room-joined', { roomId });
   });
 
   // Manejar actualización de ubicación
@@ -58,7 +60,7 @@ io.on('connection', (socket) => {
       socketId: socket.id,
       timestamp: new Date().toISOString()
     };
-    
+
     // Transmitir a todos los demás en la misma sala
     socket.to(data.roomId).emit('user-location', data);
     //console.log(`Ubicación actualizada para usuario ${data.userId} en sala ${data.roomId}`);
@@ -76,14 +78,24 @@ io.on('connection', (socket) => {
   // Manejar desconexión
   socket.on('disconnect', (reason) => {
     console.log('Usuario desconectado:', socket.id, 'Razón:', reason);
-    
-    // Eliminar usuario de las ubicaciones
-    for (let userId in userLocations) {
-      if (userLocations[userId].socketId === socket.id) {
+
+    // Obtener datos del usuario desconectado
+    const userData = connectedUsers[socket.id];
+
+    if (userData) {
+      const { userId, username, roomId } = userData;
+
+      // Emitir evento a la sala que el usuario se desconectó
+      socket.to(roomId).emit('user-disconnected', { userId, username });
+
+      // Eliminar usuario de las ubicaciones
+      if (userLocations[userId]) {
         console.log(`Eliminando ubicación del usuario ${userId}`);
         delete userLocations[userId];
-        break;
       }
+
+      // Eliminar de usuarios conectados
+      delete connectedUsers[socket.id];
     }
   });
 });
