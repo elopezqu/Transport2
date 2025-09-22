@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento Compartido - Mapbox & WebSockets</title>
+    
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css' rel='stylesheet' />
+
+    <!-- GPX -->
+    <script src="https://unpkg.com/@tmcw/togeojson@4.5.0/dist/togeojson.umd.js"></script>
+    
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Enlace al CSS externo -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Seguimiento Compartido en Tiempo Real</h1>
+        </header>
+        
+        <div class="content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div class="mobile-tabs" id="mobile-tabs">
+                <div class="mobile-tab active" data-tab="connection">Conexión</div>
+                <div class="mobile-tab" data-tab="users">Usuarios</div>
+                <div class="mobile-tab" data-tab="location">Ubicación</div>
+                <div class="mobile-tab" data-tab="instructions">Instrucciones</div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="card tab-content" id="connection-tab">
+                    <h2><i>🔗</i> Conexión</h2>
+                    <div class="status">
+                        <div class="status-indicator inactive" id="connection-indicator"></div>
+                        <span id="connection-text">Desconectado</span>
+                    </div>
+                    
+                    <input type="text" id="username" placeholder="Tu nombre de usuario" value="Usuario1">
+                    
+                    <div class="server-config">
+                        <input type="text" id="server-url" class="server-url" placeholder="URL del servidor" value="misdominios.dev">
+			<input type="text" id="server-port" class="server-port" placeholder="Puerto" value="" disabled>
+                    </div>
+                    
+                    <input type="text" id="room-id" placeholder="ID de sala (opcional)" value="sala-1">
+                    
+                    <button id="connect-btn">Conectar al Servidor</button>
+                    <button id="disconnect-btn" disabled>Desconectar</button>
+                    
+                    <span class="debug-toggle" id="debug-toggle">Mostrar información de depuración</span>
+                    <div class="debug-info" id="debug-info">
+                        <div>ID de usuario: <span id="debug-user-id"></span></div>
+                        <div>ID de socket: <span id="debug-socket-id"></span></div>
+                        <div>Usuarios en mapa: <span id="debug-users-count">0</span></div>
+                        <div>Estado: <span id="debug-status">Sin conexión</span></div>
+                    </div>
+                </div>
+                
+                <div class="card tab-content" id="users-tab">
+                    <h2><i>👥</i> Usuarios Conectados</h2>
+                    <div class="user-list" id="user-list">
+                        <div class="user-item">
+                            <div class="user-info">
+                                <div class="user-color" style="background-color: #4269e1;"></div>
+                                <span>Ningún usuario conectado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card tab-content" id="location-tab">
+                    <h2><i>📍</i> Mi Ubicación</h2>
+                    <div class="status">
+                        <div class="status-indicator inactive" id="tracking-indicator"></div>
+                        <span id="tracking-text">Seguimiento inactivo</span>
+                    </div>
+                    <div class="coordinates">
+                        Latitud: <span id="lat">--</span><br>
+                        Longitud: <span id="lng">--</span><br>
+                        Exactitud: <span id="accuracy">--</span> m
+                    </div>
+                    <button id="toggle-tracking">Iniciar Seguimiento</button>
+                </div>
+
+		<!-- Agrega esto en tu sidebar, por ejemplo en la tarjeta de rutas GPX -->
+<div class="card tab-content" id="routes-tab">
+    <h2><i>🗺️</i> Rutas GPX</h2>
+    
+    <input type="file" id="gpx-file-input" accept=".gpx" style="margin-bottom: 10px;">
+    <button id="load-local-gpx">Cargar GPX Local</button>
+    <button id="remove-gpx-btn" disabled>Eliminar Ruta</button>
+    
+    <div class="coordinates">
+        <strong>Estado:</strong> 
+        <span id="gpx-status">Esperando archivo...</span>
+    </div>
+</div>
+
+
+	    </div>
+	</div>
+
+	<footer>
+		<p>© 2023 Seguimiento Compartido con Mapbox y WebSockets | Para fines educativos</p>
+	</footer>
+    </div>
+
+    <!-- Enlace al JS externo -->
+    <script src="script.js"></script>
+</body>
+</html>
+

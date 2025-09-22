@@ -1,0 +1,374 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background: linear-gradient(90deg, #4269e1 0%, #3a63d6 100%);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.map-container {
+    flex: 1;
+    position: relative;
+    height: 50vh;
+    order: 1;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    border-radius: 0;
+}
+
+.sidebar {
+    width: 100%;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    order: 2;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.card {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: #3a63d6;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card h2 i {
+    font-size: 1.2rem;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.status-indicator.inactive {
+    background-color: #f44336;
+}
+
+.status-indicator.connected {
+    background-color: #4caf50;
+}
+
+.status-indicator.tracking {
+    background-color: #4269e1;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.coordinates {
+    background-color: #eeeeee;
+    padding: 0.6rem;
+    border-radius: 8px;
+    font-family: monospace;
+    margin: 0.6rem 0;
+    font-size: 0.85rem;
+}
+
+button {
+    background-color: #4269e1;
+    color: white;
+    border: none;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+button:hover {
+    background-color: #3a63d6;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.instructions {
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+.instructions ol {
+    margin-left: 1rem;
+}
+
+.instructions li {
+    margin-bottom: 0.4rem;
+}
+
+.user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem;
+    background-color: #eeeeee;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.user-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+
+footer {
+    text-align: center;
+    padding: 0.8rem;
+    background-color: #333;
+    color: white;
+    font-size: 0.8rem;
+    order: 3;
+}
+
+input, select {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 0.7rem;
+    font-size: 0.9rem;
+}
+
+.server-config {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+
+.server-url, .server-port {
+    width: 100%;
+}
+
+.mobile-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.mobile-tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.7rem;
+    background: #f0f0f0;
+    cursor: pointer;
+    border-right: 1px solid #ddd;
+    font-size: 0.85rem;
+}
+
+.mobile-tab:last-child {
+    border-right: none;
+}
+
+.mobile-tab.active {
+    background: #4269e1;
+    color: white;
+}
+
+.debug-info {
+    background-color: #f8f8f8;
+    border-left: 4px solid #4269e1;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    display: none;
+}
+
+.debug-toggle {
+    color: #4269e1;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* Estilos para desktop */
+@media (min-width: 769px) {
+    .content {
+        flex-direction: row;
+    }
+    
+    .map-container {
+        height: auto;
+        order: 1;
+    }
+    
+    .sidebar {
+        width: 380px;
+        order: 2;
+        max-height: none;
+    }
+    
+    .server-config {
+        flex-direction: row;
+    }
+    
+    .server-port {
+        width: 100px;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    header p {
+        font-size: 1rem;
+    }
+    
+    .card {
+        padding: 1.2rem;
+    }
+    
+    .card h2 {
+        font-size: 1.2rem;
+    }
+    
+    .coordinates {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+    
+    button {
+        padding: 0.8rem 1.2rem;
+        font-size: 1rem;
+    }
+    
+    .user-item {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+    
+    input, select {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+    
+    .mobile-tabs {
+        display: none;
+    }
+}
+
+/* Mejoras para móviles muy pequeños */
+@media (max-width: 360px) {
+    header h1 {
+        font-size: 1.3rem;
+    }
+    
+    header p {
+        font-size: 0.8rem;
+    }
+    
+    .card {
+        padding: 0.8rem;
+    }
+    
+    .card h2 {
+        font-size: 1rem;
+    }
+    
+    .coordinates {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    button {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    .mobile-tab {
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+}
+
