@@ -4,118 +4,230 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seguimiento Compartido - Mapbox & WebSockets</title>
-    
-    <!-- Mapbox GL JS -->
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css' rel='stylesheet' />
-
-    <!-- GPX -->
-    <script src="https://unpkg.com/@tmcw/togeojson@4.5.0/dist/togeojson.umd.js"></script>
-    
-    <!-- Socket.io -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    
-    <!-- Enlace al CSS externo -->
-    <link rel="stylesheet" href="styles.css">
+    <title>Iniciar Sesión - Grain Protective</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a89cc, #4a69bd);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        
+        .app-name {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .login-form {
+            padding: 30px 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #4a69bd;
+            outline: none;
+        }
+        
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember-me input {
+            margin-right: 5px;
+        }
+        
+        .forgot-password {
+            color: #4a69bd;
+            text-decoration: none;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4a69bd;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .login-button:hover {
+            background-color: #3c5aa8;
+        }
+        
+        
+        
+        
+        @media (max-width: 480px) {
+            .login-container {
+                border-radius: 15px;
+            }
+            
+            .login-header {
+                padding: 25px 15px;
+            }
+            
+            .login-form {
+                padding: 25px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Seguimiento Compartido en Tiempo Real</h1>
-        </header>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Iniciar Sesión</h1>
+        </div>
         
-        <div class="content">
-            <div class="map-container">
-                <div id="map"></div>
+        <form class="login-form">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" placeholder="Ingresa tu usuario" required>
             </div>
             
-            <div class="mobile-tabs" id="mobile-tabs">
-                <div class="mobile-tab active" data-tab="connection">Conexión</div>
-                <div class="mobile-tab" data-tab="users">Usuarios</div>
-                <div class="mobile-tab" data-tab="location">Ubicación</div>
-                <div class="mobile-tab" data-tab="instructions">Instrucciones</div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
             </div>
             
-            <div class="sidebar">
-                <div class="card tab-content" id="connection-tab">
-                    <h2><i>🔗</i> Conexión</h2>
-                    <div class="status">
-                        <div class="status-indicator inactive" id="connection-indicator"></div>
-                        <span id="connection-text">Desconectado</span>
-                    </div>
-                    
-                    <input type="text" id="username" placeholder="Tu nombre de usuario" value="Usuario1">
-                    
-                    <div class="server-config">
-                        <input type="text" id="server-url" class="server-url" placeholder="URL del servidor" value="misdominios.dev">
-			<input type="text" id="server-port" class="server-port" placeholder="Puerto" value="" disabled>
-                    </div>
-                    
-                    <input type="text" id="room-id" placeholder="ID de sala (opcional)" value="sala-1">
-                    
-                    <button id="connect-btn">Conectar al Servidor</button>
-                    <button id="disconnect-btn" disabled>Desconectar</button>
-                    
-                    <span class="debug-toggle" id="debug-toggle">Mostrar información de depuración</span>
-                    <div class="debug-info" id="debug-info">
-                        <div>ID de usuario: <span id="debug-user-id"></span></div>
-                        <div>ID de socket: <span id="debug-socket-id"></span></div>
-                        <div>Usuarios en mapa: <span id="debug-users-count">0</span></div>
-                        <div>Estado: <span id="debug-status">Sin conexión</span></div>
-                    </div>
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Recordarme</label>
                 </div>
-                
-                <div class="card tab-content" id="users-tab">
-                    <h2><i>👥</i> Usuarios Conectados</h2>
-                    <div class="user-list" id="user-list">
-                        <div class="user-item">
-                            <div class="user-info">
-                                <div class="user-color" style="background-color: #4269e1;"></div>
-                                <span>Ningún usuario conectado</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card tab-content" id="location-tab">
-                    <h2><i>📍</i> Mi Ubicación</h2>
-                    <div class="status">
-                        <div class="status-indicator inactive" id="tracking-indicator"></div>
-                        <span id="tracking-text">Seguimiento inactivo</span>
-                    </div>
-                    <div class="coordinates">
-                        Latitud: <span id="lat">--</span><br>
-                        Longitud: <span id="lng">--</span><br>
-                        Exactitud: <span id="accuracy">--</span> m
-                    </div>
-                    <button id="toggle-tracking">Iniciar Seguimiento</button>
-                </div>
-
-		<!-- Agrega esto en tu sidebar, por ejemplo en la tarjeta de rutas GPX -->
-<div class="card tab-content" id="routes-tab">
-    <h2><i>🗺️</i> Rutas GPX</h2>
-    
-    <input type="file" id="gpx-file-input" accept=".gpx" style="margin-bottom: 10px;">
-    <button id="load-local-gpx">Cargar GPX Local</button>
-    <button id="remove-gpx-btn" disabled>Eliminar Ruta</button>
-    
-    <div class="coordinates">
-        <strong>Estado:</strong> 
-        <span id="gpx-status">Esperando archivo...</span>
-    </div>
-</div>
-
-
-	    </div>
-	</div>
-
-	<footer>
-		<p>© 2023 Seguimiento Compartido con Mapbox y WebSockets | Para fines educativos</p>
-	</footer>
+                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+            </div>
+            
+            <button type="submit" class="login-button">Iniciar Sesión</button>
+            
+        </form>
     </div>
 
-    <!-- Enlace al JS externo -->
-    <script src="script.js"></script>
+    <!-- Configuración API -->
+    <script src="src/config/apiConfig.js"></script>
+    <script src="src/utils/apiClient.js"></script>
+
+    <script>
+        document.querySelector('.login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Validación básica
+            if (username.trim() === '' || password.trim() === '') {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+             // MOSTRAR INFO DE CONFIGURACIÓN (para debug)
+            console.log('Entorno detectado:', apiConfig.currentEnv);
+            console.log('URL Base:', apiConfig.getBaseUrl());
+            console.log('URL API:', apiConfig.getApiUrl());
+            
+            try {
+                // Usar el cliente API centralizado
+                const result = await apiClient.login({ username, password });
+                
+                if (result.success) {
+                    
+                    // Guardar token si existe
+                    //if (result.data.token) {
+                    //    localStorage.setItem('authToken', result.data.token);
+                    //}
+                    
+                    // Redirigir
+                    console.log(result.data.user.type)
+                    if(result.data.user.type == 1){
+                        window.location.href = './conductor/index.html';
+                    } else {
+                        console.log('redifirgir pasajero')
+                    }
+                    
+                    //window.location.href = 'dashboard.html';
+                } else {
+                    alert(result.error || 'Error en el login');
+                }
+                
+            } catch (error) {
+                console.error('Error en login:', error);
+                alert('Error de conexión con el servidor');
+            }
+            
+    
+        });
+        
+        // Efecto de enfoque en los campos de entrada
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#4a69bd';
+                this.style.boxShadow = '0 0 0 2px rgba(74, 105, 189, 0.2)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.borderColor = '#ddd';
+                this.style.boxShadow = 'none';
+            });
+        });
+    </script>
 </body>
 </html>
-
