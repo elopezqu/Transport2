@@ -19,7 +19,6 @@ const serverPortInput = document.getElementById('server-port');
 const roomIdInput = document.getElementById('room-id');
 const mobileTabs = document.getElementById('mobile-tabs');
 const tabContents = document.querySelectorAll('.tab-content');
-const debugToggle = document.getElementById('debug-toggle');
 const debugInfo = document.getElementById('debug-info');
 const debugUserId = document.getElementById('debug-user-id');
 const debugSocketId = document.getElementById('debug-socket-id');
@@ -58,7 +57,7 @@ function initMap() {
     // Cargar el mapa
     map.on('load', () => {
         console.log('Mapa cargado correctamente');
-        debugStatus.textContent = 'Mapa cargado';
+        //debugStatus.textContent = 'Mapa cargado';
         
         // Configurar funcionalidad GPX después de que el mapa esté listo
         setupGPXFunctionality();
@@ -397,11 +396,11 @@ function startTracking() {
     
     // Actualizar interfaz
     isTracking = true;
-    trackingIndicator.classList.remove('inactive');
-    trackingIndicator.classList.add('tracking');
-    trackingText.textContent = 'Seguimiento activo';
-    toggleTrackingBtn.textContent = 'Detener Seguimiento';
-    debugStatus.textContent = 'Seguimiento de ubicación activo';
+    //trackingIndicator.classList.remove('inactive');
+    //trackingIndicator.classList.add('tracking');
+    //trackingText.textContent = 'Seguimiento activo';
+    //toggleTrackingBtn.textContent = 'Detener Seguimiento';
+    //debugStatus.textContent = 'Seguimiento de ubicación activo';
     
     // Opciones para la geolocalización
     const options = {
@@ -446,9 +445,9 @@ function updatePosition(position) {
     const { latitude, longitude, accuracy } = position.coords;
     
     // Actualizar la interfaz con las coordenadas
-    latElement.textContent = latitude.toFixed(6);
-    lngElement.textContent = longitude.toFixed(6);
-    accuracyElement.textContent = accuracy.toFixed(2);
+    //latElement.textContent = latitude.toFixed(6);
+    //lngElement.textContent = longitude.toFixed(6);
+    //accuracyElement.textContent = accuracy.toFixed(2);
     
     // Centrar el mapa en la nueva ubicación
     if (map) {
@@ -670,9 +669,10 @@ function isMobileDevice() {
 // Inicializar la aplicación cuando se cargue la página
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
-    connectBtn.addEventListener('click', connectToServer);
-    disconnectBtn.addEventListener('click', disconnectFromServer);
-    toggleTrackingBtn.addEventListener('click', toggleTracking);
+    startTracking();
+    //connectBtn.addEventListener('click', connectToServer);
+    //disconnectBtn.addEventListener('click', disconnectFromServer);
+    //toggleTrackingBtn.addEventListener('click', toggleTracking);
     
     // Inicializar pestañas móviles si es necesario
     if (isMobileDevice()) {
@@ -687,9 +687,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurar información de depuración
     debugUserId.textContent = userId;
     
-    debugToggle.addEventListener('click', () => {
-        debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
-        debugToggle.textContent = debugInfo.style.display === 'none' ? 
-            'Mostrar información de depuración' : 'Ocultar información de depuración';
-    });
 });

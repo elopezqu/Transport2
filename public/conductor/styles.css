@@ -263,14 +263,6 @@ input, select {
     display: none;
 }
 
-.debug-toggle {
-    color: #4269e1;
-    text-decoration: underline;
-    cursor: pointer;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
-    display: block;
-}
 
 /* Estilos para desktop */
 @media (min-width: 769px) {

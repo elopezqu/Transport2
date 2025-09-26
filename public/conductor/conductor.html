@@ -37,36 +37,8 @@
             </div>
             
             <div class="sidebar">
-                <div class="card tab-content" id="connection-tab">
-                    <h2><i>🔗</i> Conexión</h2>
-                    <div class="status">
-                        <div class="status-indicator inactive" id="connection-indicator"></div>
-                        <span id="connection-text">Desconectado</span>
-                    </div>
-                    
-                    <input type="text" id="username" placeholder="Tu nombre de usuario" value="Usuario1">
-                    
-                    <div class="server-config">
-                        <input type="text" id="server-url" class="server-url" placeholder="URL del servidor" value="misdominios.dev">
-			<input type="text" id="server-port" class="server-port" placeholder="Puerto" value="" disabled>
-                    </div>
-                    
-                    <input type="text" id="room-id" placeholder="ID de sala (opcional)" value="sala-1">
-                    
-                    <button id="connect-btn">Conectar al Servidor</button>
-                    <button id="disconnect-btn" disabled>Desconectar</button>
-                    
-                    <span class="debug-toggle" id="debug-toggle">Mostrar información de depuración</span>
-                    <div class="debug-info" id="debug-info">
-                        <div>ID de usuario: <span id="debug-user-id"></span></div>
-                        <div>ID de socket: <span id="debug-socket-id"></span></div>
-                        <div>Usuarios en mapa: <span id="debug-users-count">0</span></div>
-                        <div>Estado: <span id="debug-status">Sin conexión</span></div>
-                    </div>
-                </div>
-                
                 <div class="card tab-content" id="users-tab">
-                    <h2><i>👥</i> Usuarios Conectados</h2>
+                    <h2><i>👥</i> Pasajeros Conectados </h2>
                     <div class="user-list" id="user-list">
                         <div class="user-item">
                             <div class="user-info">
@@ -77,20 +49,7 @@
                     </div>
                 </div>
                 
-                <div class="card tab-content" id="location-tab">
-                    <h2><i>📍</i> Mi Ubicación</h2>
-                    <div class="status">
-                        <div class="status-indicator inactive" id="tracking-indicator"></div>
-                        <span id="tracking-text">Seguimiento inactivo</span>
-                    </div>
-                    <div class="coordinates">
-                        Latitud: <span id="lat">--</span><br>
-                        Longitud: <span id="lng">--</span><br>
-                        Exactitud: <span id="accuracy">--</span> m
-                    </div>
-                    <button id="toggle-tracking">Iniciar Seguimiento</button>
-                </div>
-
+                
 		<!-- Agrega esto en tu sidebar, por ejemplo en la tarjeta de rutas GPX -->
 <div class="card tab-content" id="routes-tab">
     <h2><i>🗺️</i> Rutas GPX</h2>
