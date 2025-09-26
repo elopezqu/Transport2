@@ -670,9 +670,6 @@ function isMobileDevice() {
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
     startTracking();
-    //connectBtn.addEventListener('click', connectToServer);
-    //disconnectBtn.addEventListener('click', disconnectFromServer);
-    //toggleTrackingBtn.addEventListener('click', toggleTracking);
     
     // Inicializar pestañas móviles si es necesario
     if (isMobileDevice()) {
