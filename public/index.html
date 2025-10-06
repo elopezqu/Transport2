@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seguimiento Compartido - Mapbox & WebSockets</title>
     <title>Iniciar Sesión - Grain Protective</title>
+    <script src=""></script>
     <style>
         * {
             margin: 0;
@@ -161,11 +162,13 @@
         </form>
     </div>
 
-    <!-- Configuración API -->
-    <script src="src/config/apiConfig.js"></script>
-    <script src="src/utils/apiClient.js"></script>
+    <!-- Configuración API 
+    <script src="src/utils/apiClient.js"></script> 
+    <script src="src/config/apiConfig.js"></script> -->
+     
 
     <script>
+        
         document.querySelector('.login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -178,14 +181,20 @@
                 return;
             }
             
-             // MOSTRAR INFO DE CONFIGURACIÓN (para debug)
-            console.log('Entorno detectado:', apiConfig.currentEnv);
-            console.log('URL Base:', apiConfig.getBaseUrl());
-            console.log('URL API:', apiConfig.getApiUrl());
-            
+
             try {
                 // Usar el cliente API centralizado
-                const result = await apiClient.login({ username, password });
+                //const result = await apiClient.login({ username, password });
+                
+                const response = await fetch('http://localhost:3000/api/auth/login',{
+                    method : "POST",
+                    headers : {
+                        "Content-Type": "application/json",
+                    },
+                    body : JSON.stringify({username: username, password: password}) 
+                });
+                const result = await response.json();
+
                 
                 if (result.success) {
                     
@@ -195,10 +204,13 @@
                     //}
                     
                     // Redirigir
-                    console.log(result.data.user.type)
-                    if(result.data.user.type == 1){
-                        window.location.href = './conductor/conductor.html';
+                    console.log("Tipo: ",result.user.type)
+                    if(result.user.type == 2){
+                        window.location.href = './conductor/conductor.html?id='+result.user.id;
                     } else {
+                        if (result.data.user.type == 1){
+                            console.log('redifirgir admin')
+                        }
                         console.log('redifirgir pasajero')
                     }
                     

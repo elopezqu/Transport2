@@ -263,6 +263,10 @@ input, select {
     display: none;
 }
 
+.start {
+    background-color: #4caf50
+}
+
 
 /* Estilos para desktop */
 @media (min-width: 769px) {
@@ -318,6 +322,7 @@ input, select {
     .user-item {
         padding: 0.8rem;
         font-size: 1rem;
+        margin: 20px 0;
     }
     
     input, select {
@@ -328,6 +333,7 @@ input, select {
     .mobile-tabs {
         display: none;
     }
+
 }
 
 /* Mejoras para móviles muy pequeños */
@@ -362,5 +368,5 @@ input, select {
         font-size: 0.75rem;
         padding: 0.5rem;
     }
+    
 }
-

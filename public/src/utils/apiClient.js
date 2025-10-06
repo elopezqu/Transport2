@@ -1,4 +1,6 @@
 // Cliente HTTP reutilizable - Versión para navegador
+import { apiConfig } from "../config/apiConfig";
+
 class ApiClient {
     constructor() {
         console.log('🚀 ApiClient inicializado');
@@ -6,7 +8,7 @@ class ApiClient {
 
     async request(endpoint, options = {}) {
         // Usar apiConfig global
-        const url = endpoint.startsWith('http') ? endpoint : window.apiConfig.getApiUrl() + endpoint;
+        const url = endpoint.startsWith('http') ? endpoint : apiConfig.getApiUrl() + endpoint;
         
         const config = {
             method: 'GET',
@@ -72,23 +74,29 @@ class ApiClient {
 
     // Métodos de autenticación
     async login(credentials) {
-        const urls = window.apiConfig.getAuthUrls();
+        const urls = apiConfig.getAuthUrls();
         return this.post(urls.login, credentials);
     }
 
+    // Métodos de autenticación
+    async institution(credentials) {
+        const urls = apiConfig.getAuthUrls();
+        return this.post(urls.institutionByUser, credentials);
+    }
+
     async register(userData) {
-        const urls = window.apiConfig.getAuthUrls();
+        const urls = apiConfig.getAuthUrls();
         return this.post(urls.register, userData);
     }
 
     // Métodos de usuarios
     async getUsers() {
-        const urls = window.apiConfig.getUserUrls();
+        const urls = apiConfig.getUserUrls();
         return this.get(urls.getUsers);
     }
 
     async updateLocation(locationData) {
-        const urls = window.apiConfig.getLocationUrls();
+        const urls = apiConfig.getLocationUrls();
         return this.post(urls.updateLocation, locationData);
     }
 
@@ -99,4 +107,5 @@ class ApiClient {
 }
 
 // Crear instancia global inmediatamente
-window.apiClient = new ApiClient();
+//module.exports = new ApiClient();
+export const apiClient = new ApiClient();

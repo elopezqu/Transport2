@@ -21,7 +21,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Mi Viaje</h1>
+            <h1 id="titleInstitution"></h1>
         </header>
         
         <div class="content">
@@ -50,27 +50,22 @@
                 </div>
                 
                 
-		<!-- Agrega esto en tu sidebar, por ejemplo en la tarjeta de rutas GPX -->
-<div class="card tab-content" id="routes-tab">
-    <h2><i>🗺️</i> Rutas GPX</h2>
+		        <!-- Agrega esto en tu sidebar, por ejemplo en la tarjeta de rutas GPX -->
+                <div class="card tab-content" id="routes-tab">
+                    <h2><i>🗺️</i> Rutas GPX</h2>
+                    <div class="form-group">
+                        <label for="gpxSelect">Seleccionar ruta:</label>
+                        <select id="gpxSelect">
+                        </select>
+                    </div>
     
-    <input type="file" id="gpx-file-input" accept=".gpx" style="margin-bottom: 10px;">
-    <button id="load-local-gpx">Cargar GPX Local</button>
-    <button id="remove-gpx-btn" disabled>Eliminar Ruta</button>
+                    <button id="load-local-gpx">Cargar GPX Local</button>
+                    <button class="start" id="start">Iniciar Viaje</button>
     
-    <div class="coordinates">
-        <strong>Estado:</strong> 
-        <span id="gpx-status">Esperando archivo...</span>
-    </div>
-</div>
-
-
+                </div>
+	        </div>
 	    </div>
-	</div>
 
-	<footer>
-		<p>© 2023 Seguimiento Compartido con Mapbox y WebSockets | Para fines educativos</p>
-	</footer>
     </div>
 
     <!-- Enlace al JS externo -->

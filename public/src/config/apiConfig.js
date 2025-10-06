@@ -1,5 +1,5 @@
 // Configuración centralizada de APIs - Versión para navegador
-class ApiConfig {
+export class ApiConfig {
     constructor() {
         this.environments = {
             development: {
@@ -7,26 +7,24 @@ class ApiConfig {
                 apiVersion: '/api'
             },
             production: {
-                baseUrl: 'https://tu-dominio.com',
+                baseUrl: 'https://misdominios.dev',
                 apiVersion: '/api'
             }
         };
         
-        this.currentEnv = this.getCurrentEnvironment();
+        this.currentEnv = this.getCurrentEnvironment(1);
         this.config = this.environments[this.currentEnv];
         
         console.log('🔧 Configuración cargada para entorno:', this.currentEnv);
         console.log('🌐 URL Base:', this.getBaseUrl());
     }
 
-    getCurrentEnvironment() {
-        const hostname = window.location.hostname;
+    getCurrentEnvironment(num) {
         
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        if (num == 1) {
             return 'development';
         } else {
-            //return 'production';
-            return 'development';
+            return 'production';
         }
     }
 
@@ -38,38 +36,5 @@ class ApiConfig {
         return this.config.baseUrl + this.config.apiVersion;
     }
 
-    // URLs específicas de la API
-    getAuthUrls() {
-        const base = this.getApiUrl();
-        return {
-            login: `${base}/auth/login`,
-            register: `${base}/auth/register`,
-            logout: `${base}/auth/logout`,
-            profile: `${base}/auth/profile`
-        };
-    }
-
-    getUserUrls() {
-        const base = this.getApiUrl();
-        return {
-            getUsers: `${base}/users`,
-            getUserById: (id) => `${base}/users/${id}`,
-            updateUser: (id) => `${base}/users/${id}`
-        };
-    }
-
-    getLocationUrls() {
-        const base = this.getApiUrl();
-        return {
-            updateLocation: `${base}/locations`,
-            getLocationHistory: (userId) => `${base}/locations/history/${userId}`
-        };
-    }
-
-    getSocketUrl() {
-        return this.config.baseUrl;
-    }
 }
 
-// Crear instancia global inmediatamente
-window.apiConfig = new ApiConfig();

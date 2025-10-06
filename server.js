@@ -6,6 +6,8 @@ require('dotenv').config();
 
 // Importaciones de rutas
 const authRoutes = require('./src/routes/authRoutes');
+const institutionRoutes = require("./src/routes/institutionRoutes");
+const routeRoutes = require("./src/routes/routeRoutes");
 //const userRoutes = require('./src/routes/userRoutes');
 //const locationRoutes = require('./src/routes/locationRoutes');
 
@@ -25,6 +27,8 @@ app.use(express.static('public'));
 
 // Rutas API
 app.use('/api/auth', authRoutes);
+app.use('/api/institution',institutionRoutes);
+app.use('/api/route',routeRoutes);
 //app.use('/api/users', userRoutes);
 //app.use('/api/locations', locationRoutes);
 

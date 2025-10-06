@@ -1,3 +1,4 @@
+//const { head } = require("../../src/routes/authRoutes");
 // Reemplaza esto con tu token de Mapbox
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FicmllbDI5LXMiLCJhIjoiY20yMnZvYnExMDJwNzJqcTV3d3J3cmUxdSJ9.fA3z9inzGxKvS2GC_rH20g';
 
@@ -24,6 +25,13 @@ const debugUserId = document.getElementById('debug-user-id');
 const debugSocketId = document.getElementById('debug-socket-id');
 const debugUsersCount = document.getElementById('debug-users-count');
 const debugStatus = document.getElementById('debug-status');
+
+
+//Titulo institucion
+const titleInstitution = document.getElementById("titleInstitution");
+
+//URL_API
+const urlBase = "http://localhost:3000/api";
 
 // Variables para el mapa, seguimiento y sockets
 let map;
@@ -395,7 +403,7 @@ function startTracking() {
     }
     
     // Actualizar interfaz
-    isTracking = true;
+    //isTracking = true;
     //trackingIndicator.classList.remove('inactive');
     //trackingIndicator.classList.add('tracking');
     //trackingText.textContent = 'Seguimiento activo';
@@ -404,9 +412,9 @@ function startTracking() {
     
     // Opciones para la geolocalización
     const options = {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 27000
+        enableHighAccuracy: true, // ya lo usas: importante
+        maximumAge: 0,            // no usar caché (devuelve la posición más reciente real)
+        timeout: 60000            // más tolerancia para obtener una lectura GPS precisa
     };
     
     // Obtener ubicación actual
@@ -443,17 +451,25 @@ function stopTracking() {
 // Actualizar la posición en el mapa
 function updatePosition(position) {
     const { latitude, longitude, accuracy } = position.coords;
+    console.log('RAW pos', latitude, longitude, 'acc (m):', accuracy);
     
     // Actualizar la interfaz con las coordenadas
     //latElement.textContent = latitude.toFixed(6);
     //lngElement.textContent = longitude.toFixed(6);
     //accuracyElement.textContent = accuracy.toFixed(2);
     
+    const MAX_ACCEPTED_ACCURACY = 6000; // metros, ajusta según tu caso
+    if (accuracy > MAX_ACCEPTED_ACCURACY) {
+        //debugStatus.textContent = `Ignorando lectura por baja precisión (${Math.round(accuracy)} m)`;
+        // opcional: seguir esperando mejores lecturas sin hacer flyTo ni emitir al servidor
+        return;
+    }
+    
     // Centrar el mapa en la nueva ubicación
     if (map) {
         map.flyTo({
             center: [longitude, latitude],
-            zoom: 15,
+            zoom: 17,
             speed: 1.5
         });
     }
@@ -666,11 +682,75 @@ function isMobileDevice() {
     return window.innerWidth <= 768;
 }
 
+//Funcion para cargar rutas
+
+async function getRoutes(id) {
+    
+    //Api
+    const response = await fetch(`${urlBase}/route/institution`,{
+            method : "POST",
+            headers : {
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({idInstitution: id}) 
+        });
+    const data = await response.json();
+    console.log(data.route);
+    
+    
+    //Selet
+    const select = document.getElementById('gpxSelect');
+    // Llenar con datos de la API
+    data.route.forEach(route => {
+        const option = document.createElement('option');
+        option.value = route.id;
+        option.textContent = `${route.nombre}`;
+        select.appendChild(option);
+    });
+    
+}
+
+//Funcion para datos de Institucion
+
+async function getInstitution(id){
+    try{
+    
+        const response = await fetch(`${urlBase}/institution/user`,{
+            method : "POST",
+            headers : {
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({idUser: id}) 
+        });
+        const data = await response.json();
+        //Nombre institucion
+        titleInstitution.textContent = data.institution.name;
+        //Cargar rutas
+        getRoutes(data.institution.id);
+
+    } catch (error){
+        alert('Error de conexión con el servidor script');
+    }
+}
+
+
 // Inicializar la aplicación cuando se cargue la página
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
     startTracking();
     
+
+    //Parametro
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    console.log("parametro :", id);
+
+    //Institucion
+    getInstitution(id);
+    
+    //Rutas
+    
+
     // Inicializar pestañas móviles si es necesario
     if (isMobileDevice()) {
         initMobileTabs();
@@ -678,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Ajustar el valor del servidor para usar HTTPS
-    serverUrlInput.value = 'misdominios.dev';
+    //serverUrlInput.value = 'misdominios.dev';
     serverPortInput.style.display = 'none';
     
     // Configurar información de depuración
