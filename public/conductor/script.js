@@ -24,7 +24,7 @@ const debugInfo = document.getElementById('debug-info');
 const debugUserId = document.getElementById('debug-user-id');
 const debugSocketId = document.getElementById('debug-socket-id');
 const debugUsersCount = document.getElementById('debug-users-count');
-const debugStatus = document.getElementById('debug-status');
+
 
 
 //Titulo institucion
@@ -32,13 +32,18 @@ const titleInstitution = document.getElementById("titleInstitution");
 
 //URL_API
 const urlBase = "http://localhost:3000/api";
+//const urlBase = "https://misdominios.dev/api";
 
 // Variables para el mapa, seguimiento y sockets
 let map;
 let userMarker;
 let otherUsersMarkers = {};
 let watchId = null;
+// ubicacion disponible
 let isTracking = false;
+//Ruta cargada
+let inRoute = false;
+
 let socket = null;
 let isConnected = false;
 let userId = generateUserId();
@@ -69,159 +74,141 @@ function initMap() {
         
         // Configurar funcionalidad GPX después de que el mapa esté listo
         setupGPXFunctionality();
+        //addGPXToMap();
     });
 }
 
-// Configurar funcionalidad GPX
+// Función para agregar GPX al mapa
 function setupGPXFunctionality() {
-    // Función para cargar GPX desde archivo local
-    function loadGPXFromLocalFile() {
-        const fileInput = document.getElementById('gpx-file-input');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            alert('Por favor selecciona un archivo GPX');
-            return;
-        }
-        
-        if (!file.name.toLowerCase().endsWith('.gpx')) {
-            alert('Por favor selecciona un archivo con extensión .gpx');
-            return;
-        }
-        
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            try {
-                const gpxText = e.target.result;
-                const parser = new DOMParser();
-                const gpxXml = parser.parseFromString(gpxText, 'text/xml');
-                
-                if (gpxXml.getElementsByTagName('parsererror').length > 0) {
-                    throw new Error('Archivo GPX inválido o mal formado');
-                }
-                
-                const geojson = toGeoJSON.gpx(gpxXml);
-                addGPXToMap(geojson, file.name);
-                
-                document.getElementById('gpx-status').textContent = `Ruta cargada: ${file.name}`;
-                document.getElementById('gpx-status').style.color = 'green';
-                document.getElementById('remove-gpx-btn').disabled = false;
-                
-            } catch (error) {
-                console.error('Error procesando el archivo GPX:', error);
-                document.getElementById('gpx-status').textContent = 'Error: ' + error.message;
-                document.getElementById('gpx-status').style.color = 'red';
-            }
-        };
-        
-        reader.readAsText(file);
-    }
 
-    // Función para agregar GPX al mapa
-    function addGPXToMap(geojson, routeName) {
+    async function addGPXToMap() {
         // 1. Limpiar ruta anterior si existe
-        if (map.getSource('gpx-route')) {
-            map.removeLayer('gpx-route-line');
-            map.removeLayer('gpx-route-points');
-            map.removeSource('gpx-route');
-        }
-        
-        // 2. Agregar la fuente GeoJSON al mapa
-        map.addSource('gpx-route', {
-            type: 'geojson',
-            data: geojson
-        });
-        
-        // 3. Agregar la línea de la ruta
-        map.addLayer({
-            id: 'gpx-route-line',
-            type: 'line',
-            source: 'gpx-route',
-            layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            paint: {
-                'line-color': '#ff6b35',
-                'line-width': 4,
-                'line-opacity': 0.8
-            },
-            filter: ['==', '$type', 'LineString']
-        });
-        
-        // 4. Agregar puntos de la ruta (opcional)
-        map.addLayer({
-            id: 'gpx-route-points',
-            type: 'circle',
-            source: 'gpx-route',
-            paint: {
-                'circle-radius': 5,
-                'circle-color': '#ff6b35',
-                'circle-stroke-width': 2,
-                'circle-stroke-color': '#ffffff'
-            },
-            filter: ['==', '$type', 'Point']
-        });
-        
-        // 5. Ajustar el mapa para mostrar toda la ruta
-        const bounds = new mapboxgl.LngLatBounds();
-        geojson.features.forEach(feature => {
-            if (feature.geometry.type === 'LineString') {
-                feature.geometry.coordinates.forEach(coord => {
-                    bounds.extend(coord);
-                });
-            } else if (feature.geometry.type === 'Point') {
-                bounds.extend(feature.geometry.coordinates);
-            }
-        });
-        
-        if (!bounds.isEmpty()) {
-            map.fitBounds(bounds, {
-                padding: 50,
-                duration: 2000
-            });
-        }
-        
-        console.log(`Ruta GPX "${routeName}" cargada correctamente`);
-    }
+        removeGPXRoute();
+            
+        // 2. Cual mapa
+        const select = document.getElementById('gpxSelect');
 
+        console.log(`Valor "${select.value}" GPX`);
+
+        //Api
+        const response = await fetch(`${urlBase}/route/routeid`,{
+            method : "POST",
+            headers : {
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({id: select.value}) 
+        });
+        const data = await response.json();
+        console.log(data.route);
+
+        urlGPX = data.route.url;
+
+
+        try{
+            //1. Descargar el GPx
+            const response = await fetch(urlGPX);
+            if(!response){
+                throw new Error(`Error al descargar GPX: ${response.status}`);
+            }
+            const gpxText = await response.text();
+
+            //2. Parsea el texto a DOM 
+            const parser = new DOMParser();
+            const gpxDom = parser.parseFromString(gpxText, "text/xml");
+
+            //3. Verifica que la librería esté disponible
+            if (typeof toGeoJSON === 'undefined') {
+                throw new Error('La librería toGeoJSON no está cargada');
+            }
+
+            //4. Convertir GPX a GeoJSON - usa SOLO toGeoJSON
+            const geojson = toGeoJSON.gpx(gpxDom);
+
+            // Hay datos válidos ?
+            if (!geojson || !geojson.features || geojson.features.length === 0) {
+                throw new Error('No se encontraron datos en el GPX');
+            }
+
+            // 5. Agrega la fuente GeoJSON al mapa
+            map.addSource('gpx-route', {
+                type: 'geojson',
+                data: geojson
+            });
+
+            // 6. Agrega una capa para las líneas (tracks/rutas)
+            map.addLayer({
+                id: 'gpx-lines',
+                type: 'line',
+                source: 'gpx-route',
+                filter: ['==', ['geometry-type'], 'LineString'],  // Solo líneas
+                paint: {
+                    'line-color': '#3887be',  // Color azul
+                    'line-width': 4,          // Grosor
+                    'line-opacity': 0.8
+                }
+            });
+            inRoute = true;
+            
+            if(isTracking && inRoute){
+                const startBtn = document.getElementById('start');
+                startBtn.disabled = false;
+            }
+            console.log(`Ruta GPX cargada correctamente`);
+            document.getElementById('load-gpx').disabled = true;
+
+        } catch (error) {
+            console.error('Error al cargar el GPX:', error);
+            // Opcional: Muestra un mensaje en el mapa
+            alert("No se puedo cargar ruta");
+        }
+    }
+    
     // Función para eliminar la ruta
     function removeGPXRoute() {
-        if (map.getSource('gpx-route')) {
-            map.removeLayer('gpx-route-line');
-            map.removeLayer('gpx-route-points');
-            map.removeSource('gpx-route');
+            try {
+            // 1. Remover la capa primero (si existe)
+            if (map.getLayer('gpx-lines')) {
+                map.removeLayer('gpx-lines');
+            }
+
+            // 2. Remover la fuente (si existe)
+            if (map.getSource('gpx-route')) {
+                map.removeSource('gpx-route');
+            }
+
+            // 3. Remover popups si los hay
+            const popups = document.getElementsByClassName('mapboxgl-popup');
+            if (popups.length) {
+                popups[0].remove();
+            }
+
+            console.log('GPX removido correctamente');
             
-            document.getElementById('gpx-file-input').value = '';
-            document.getElementById('gpx-status').textContent = 'Ruta eliminada';
-            document.getElementById('gpx-status').style.color = 'gray';
-            document.getElementById('remove-gpx-btn').disabled = true;
+        } catch (error) {
+            console.error('Error al remover GPX:', error);
         }
     }
 
     // Configurar event listeners para GPX
-    const loadGpxBtn = document.getElementById('load-local-gpx');
-    const removeGpxBtn = document.getElementById('remove-gpx-btn');
-    const gpxFileInput = document.getElementById('gpx-file-input');
+    const loadGpxBtn = document.getElementById('load-gpx');
+    //onst removeGpxBtn = document.getElementById('remove-gpx-btn');
+    //const gpxFileInput = document.getElementById('gpx-file-input');
     
-    if (loadGpxBtn) {
-        loadGpxBtn.addEventListener('click', loadGPXFromLocalFile);
-    }
+    loadGpxBtn.addEventListener('click', addGPXToMap);
     
-    if (removeGpxBtn) {
-        removeGpxBtn.addEventListener('click', removeGPXRoute);
-    }
     
-    if (gpxFileInput) {
-        gpxFileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                loadGPXFromLocalFile();
-            }
-        });
-    }
+    //if (removeGpxBtn) {
+    //    removeGpxBtn.addEventListener('click', removeGPXRoute);
+    //}
     
-    console.log('Módulo GPX cargado correctamente');
+    //if (gpxFileInput) {
+    //    gpxFileInput.addEventListener('change', function() {
+    //        if (this.files.length > 0) {
+    //            loadGPXFromLocalFile();
+    //        }
+    //    });
+    //}
+
 }
 
 // Generar un ID único para el usuario
@@ -231,15 +218,15 @@ function generateUserId() {
 
 // Conectar al servidor de WebSockets
 function connectToServer() {
-    const username = usernameInput.value || 'UsuarioAnónimo';
-    const serverUrl = serverUrlInput.value || 'misdominios.dev';
-    currentRoomId = roomIdInput.value || 'default-room';
+    const username = 'UsuarioAnónimo';
+    //const serverUrl = serverUrlInput.value || 'misdominios.dev';
+    const serverUrl = 'localhost:3000';
+    currentRoomId = 'default-room';
     
     // Ya no necesitamos el puerto, ya que usamos el mismo dominio
-    const serverFullUrl = `https://${serverUrl}`;
+    const serverFullUrl = `http://${serverUrl}`;
     
     console.log(`Conectando a ${serverFullUrl} como ${username} (${userId}) en sala ${currentRoomId}...`);
-    debugStatus.textContent = `Conectando a ${serverFullUrl}...`;
     
     // Conectar con el servidor Socket.io
     try {
@@ -250,18 +237,18 @@ function connectToServer() {
         // Configurar manejadores de eventos del socket
         socket.on('connect', () => {
             console.log('Conectado al servidor con ID:', socket.id);
-            debugStatus.textContent = 'Conectado al servidor';
-            debugSocketId.textContent = socket.id;
+            //debugStatus.textContent = 'Conectado al servidor';
+            //debugSocketId.textContent = socket.id;
             
             isConnected = true;
-            connectionIndicator.classList.remove('inactive');
-            connectionIndicator.classList.add('connected');
-            connectionText.textContent = 'Conectado';
-            connectBtn.disabled = true;
-            disconnectBtn.disabled = false;
-            usernameInput.disabled = true;
-            serverUrlInput.disabled = true;
-            roomIdInput.disabled = true;
+            //connectionIndicator.classList.remove('inactive');
+            //connectionIndicator.classList.add('connected');
+            //connectionText.textContent = 'Conectado';
+            //connectBtn.disabled = true;
+            //disconnectBtn.disabled = false;
+            //usernameInput.disabled = true;
+            //serverUrlInput.disabled = true;
+            //roomIdInput.disabled = true;
             
             // Unirse a la sala
             socket.emit('join-room', {
@@ -276,13 +263,13 @@ function connectToServer() {
         
         socket.on('disconnect', () => {
             console.log('Desconectado del servidor');
-            debugStatus.textContent = 'Desconectado del servidor';
+            //debugStatus.textContent = 'Desconectado del servidor';
             handleDisconnection();
         });
         
         socket.on('connect_error', (error) => {
             console.error('Error de conexión:', error);
-            debugStatus.textContent = `Error de conexión: ${error.message}`;
+            //debugStatus.textContent = `Error de conexión: ${error.message}`;
             alert(`Error al conectar con el servidor: ${error.message}`);
             handleDisconnection();
         });
@@ -290,14 +277,14 @@ function connectToServer() {
         // Recibir ubicación de otro usuario
         socket.on('user-location', (data) => {
             console.log('Ubicación recibida de otro usuario:', data);
-            debugStatus.textContent = `Ubicación recibida de ${data.username}`;
+            //debugStatus.textContent = `Ubicación recibida de ${data.username}`;
             updateOtherUserPosition(data);
         });
         
         // Recibir ubicaciones existentes al conectarse
         socket.on('existing-locations', (locations) => {
             console.log('Ubicaciones existentes recibidas:', locations);
-            debugStatus.textContent = `Recibidas ${locations.length} ubicaciones existentes`;
+            //debugStatus.textContent = `Recibidas ${locations.length} ubicaciones existentes`;
             
             // Limpiar marcadores existentes primero
             removeAllOtherUserMarkers();
@@ -306,13 +293,13 @@ function connectToServer() {
                 updateOtherUserPosition(location);
             });
             
-            debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
+            //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
         });
         
         // Usuario conectado
         socket.on('user-connected', (userData) => {
             console.log('Usuario conectado:', userData);
-            debugStatus.textContent = `${userData.username} se ha conectado`;
+            //debugStatus.textContent = `${userData.username} se ha conectado`;
             
             // Actualizar lista de usuarios
             updateUserList(userData, getColorForUserId(userData.userId), 'add');
@@ -321,7 +308,7 @@ function connectToServer() {
         // Usuario desconectado
         socket.on('user-disconnected', (userData) => {
             console.log('Usuario desconectado:', userData);
-            debugStatus.textContent = `${userData.username} se ha desconectado`;
+            //debugStatus.textContent = `${userData.username} se ha desconectado`;
             removeOtherUserMarker(userData.userId);
             
             // Actualizar lista de usuarios
@@ -331,12 +318,12 @@ function connectToServer() {
         // Confirmación de unión a sala
         socket.on('room-joined', (data) => {
             console.log('Unido a la sala:', data);
-            debugStatus.textContent = `Unido a la sala: ${data.roomId}`;
+            //debugStatus.textContent = `Unido a la sala: ${data.roomId}`;
         });
         
     } catch (error) {
         console.error('Error al conectar con el servidor:', error);
-        debugStatus.textContent = `Error: ${error.message}`;
+        //debugStatus.textContent = `Error: ${error.message}`;
         alert('Error al conectar con el servidor. Verifica la URL.');
     }
 }
@@ -350,14 +337,14 @@ function getColorForUserId(userId) {
 // Manejar la desconexión
 function handleDisconnection() {
     isConnected = false;
-    connectionIndicator.classList.remove('connected');
-    connectionIndicator.classList.add('inactive');
-    connectionText.textContent = 'Desconectado';
-    connectBtn.disabled = false;
-    disconnectBtn.disabled = true;
-    usernameInput.disabled = false;
-    serverUrlInput.disabled = false;
-    roomIdInput.disabled = false;
+    //connectionIndicator.classList.remove('connected');
+    //connectionIndicator.classList.add('inactive');
+    //connectionText.textContent = 'Desconectado';
+    //connectBtn.disabled = false;
+    //disconnectBtn.disabled = true;
+    //usernameInput.disabled = false;
+    //serverUrlInput.disabled = false;
+    //roomIdInput.disabled = false;
     
     // Detener seguimiento si estaba activo
     if (isTracking) {
@@ -370,16 +357,16 @@ function handleDisconnection() {
     // Actualizar lista de usuarios
     userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-color" style="background-color: #4269e1;"></div><span>Ningún usuario conectado</span></div></div>';
     
-    debugStatus.textContent = 'Desconectado';
-    debugSocketId.textContent = 'N/A';
-    debugUsersCount.textContent = '0';
+    //debugStatus.textContent = 'Desconectado';
+    //debugSocketId.textContent = 'N/A';
+    //debugUsersCount.textContent = '0';
 }
 
 // Desconectar del servidor
 function disconnectFromServer() {
     if (socket) {
         console.log('Desconectando del servidor...');
-        debugStatus.textContent = 'Desconectando...';
+        //debugStatus.textContent = 'Desconectando...';
         socket.disconnect();
         socket = null;
     }
@@ -403,7 +390,7 @@ function startTracking() {
     }
     
     // Actualizar interfaz
-    //isTracking = true;
+    isTracking = true;
     //trackingIndicator.classList.remove('inactive');
     //trackingIndicator.classList.add('tracking');
     //trackingText.textContent = 'Seguimiento activo';
@@ -441,11 +428,11 @@ function stopTracking() {
     
     // Actualizar interfaz
     isTracking = false;
-    trackingIndicator.classList.remove('tracking');
-    trackingIndicator.classList.add('inactive');
-    trackingText.textContent = 'Seguimiento inactivo';
-    toggleTrackingBtn.textContent = 'Iniciar Seguimiento';
-    debugStatus.textContent = 'Seguimiento de ubicación detenido';
+    //trackingIndicator.classList.remove('tracking');
+    //trackingIndicator.classList.add('inactive');
+    //trackingText.textContent = 'Seguimiento inactivo';
+    //toggleTrackingBtn.textContent = 'Iniciar Seguimiento';
+    //debugStatus.textContent = 'Seguimiento de ubicación detenido';
 }
 
 // Actualizar la posición en el mapa
@@ -469,7 +456,7 @@ function updatePosition(position) {
     if (map) {
         map.flyTo({
             center: [longitude, latitude],
-            zoom: 17,
+            //zoom: 17,
             speed: 1.5
         });
     }
@@ -495,7 +482,7 @@ function updatePosition(position) {
     
     // Enviar la ubicación al servidor si está conectado
     if (isConnected && socket) {
-        const username = usernameInput.value || 'UsuarioAnónimo';
+        const username = 'UsuarioAnónimo';
         
         const locationData = {
             userId: userId,
@@ -508,14 +495,14 @@ function updatePosition(position) {
         };
         
         socket.emit('location-update', locationData);
-        debugStatus.textContent = 'Enviando ubicación...';
+        //debugStatus.textContent = 'Enviando ubicación...';
     }
 }
 
 // Manejar errores de geolocalización
 function handleError(error) {
     console.error('Error obteniendo la ubicación:', error);
-    debugStatus.textContent = `Error de geolocalización: ${error.message}`;
+    //debugStatus.textContent = `Error de geolocalización: ${error.message}`;
     
     let errorMessage;
     switch(error.code) {
@@ -544,7 +531,7 @@ function updateOtherUserPosition(userData) {
     // Si ya existe un marcador para este usuario, actualizarlo
     if (otherUsersMarkers[userData.userId] && map) {
         otherUsersMarkers[userData.userId].setLngLat([userData.longitude, userData.latitude]);
-        debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
+        //debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
     } else if (map) {
         // Crear un nuevo marcador para este usuario
         const color = getColorForUserId(userData.userId);
@@ -571,8 +558,8 @@ function updateOtherUserPosition(userData) {
         // Actualizar la lista de usuarios
         updateUserList(userData, color, 'add');
         
-        debugStatus.textContent = `Nuevo usuario: ${userData.username}`;
-        debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
+        //debugStatus.textContent = `Nuevo usuario: ${userData.username}`;
+        //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
     }
 }
 
@@ -585,7 +572,7 @@ function removeOtherUserMarker(userId) {
         // Actualizar la lista de usuarios
         updateUserList({userId: userId}, null, 'remove');
         
-        debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
+        //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
     }
 }
 
@@ -595,7 +582,7 @@ function removeAllOtherUserMarkers() {
         otherUsersMarkers[userId].remove();
     }
     otherUsersMarkers = {};
-    debugUsersCount.textContent = '0';
+    //debugUsersCount.textContent = '0';
 }
 
 // Actualizar la lista de usuarios conectados
@@ -748,7 +735,10 @@ document.addEventListener('DOMContentLoaded', () => {
     //Institucion
     getInstitution(id);
     
-    //Rutas
+    //Inicio
+    document.getElementById('start').disabled = true;
+
+
     
 
     // Inicializar pestañas móviles si es necesario
@@ -764,4 +754,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurar información de depuración
     debugUserId.textContent = userId;
     
+});
+
+//Conector con server
+document.getElementById('start').addEventListener('click', () => {
+    console.log('Arrow function ejecutada');
+    connectToServer();
 });
