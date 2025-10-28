@@ -38,20 +38,8 @@
             </div>
             
             <div class="sidebar">
-                <div class="card tab-content" id="users-tab">
-                    <h2><i>👥</i> Pasajeros Conectados </h2>
-                    <div class="user-list" id="user-list">
-                        <div class="user-item">
-                            <div class="user-info">
-                                <div class="user-color" style="background-color: #4269e1;"></div>
-                                <span>Ningún usuario conectado</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                
-		        <!-- Agrega esto en tu sidebar, por ejemplo en la tarjeta de rutas GPX -->
+               
+                <!-- Agrega esto en tu sidebar, por ejemplo en la tarjeta de rutas GPX -->
                 <div class="card tab-content" id="routes-tab">
                     <h2><i>🗺️</i> Rutas GPX</h2>
                     <div class="form-group">
@@ -61,9 +49,28 @@
                     </div>
     
                     <button id="load-gpx">Cargar GPX</button>
-                    <button class="start" id="start">Iniciar Viaje</button>
+                    
     
                 </div>
+                
+                <div class="card tab-content" id="state">
+                    <h2><i>🗣️</i> Estado del viaje </h2>
+                    <div class="user-list" id="user-state">
+                        <div class="driver">
+                            <label style="margin-left: 0.4rem;"><strong> Conductor: </strong></label>
+                            <label for="user-driver">No asignado</label>
+                        </div>
+                        <div class="user-info">
+                            <br>
+                            <br>
+                            <label><strong>Estado: </strong></label>
+                            <div class="user-color" style="background-color: #707174;"></div>
+                                <span>Desconectado</span>
+                            </div>
+                    </div>
+                </div>
+                <button class="start" id="start">Aceptar Viaje</button>
+                
 	        </div>
 	    </div>
 
