@@ -152,6 +152,7 @@ function setupGPXFunctionality() {
             if(isTracking && inRoute){
                 const startBtn = document.getElementById('start');
                 startBtn.disabled = false;
+                connectToServer()
             }
             console.log(`Ruta GPX cargada correctamente`);
             document.getElementById('load-gpx').disabled = true;
@@ -218,10 +219,10 @@ function generateUserId() {
 
 // Conectar al servidor de WebSockets
 function connectToServer() {
-    const username = 'UsuarioAnónimo';
+    const username = 'Conductor';
     //const serverUrl = serverUrlInput.value || 'misdominios.dev';
     const serverUrl = 'localhost:3000';
-    currentRoomId = 'default-room';
+    currentRoomId = 'Viaje';
     
     // Ya no necesitamos el puerto, ya que usamos el mismo dominio
     const serverFullUrl = `http://${serverUrl}`;
@@ -759,5 +760,5 @@ document.addEventListener('DOMContentLoaded', () => {
 //Conector con server
 document.getElementById('start').addEventListener('click', () => {
     console.log('Arrow function ejecutada');
-    connectToServer();
+    //connectToServer();
 });
