@@ -31,8 +31,8 @@ const debugUsersCount = document.getElementById('debug-users-count');
 const titleInstitution = document.getElementById("titleInstitution");
 
 //URL_API
-const urlBase = "http://localhost:3000/api";
-//const urlBase = "https://misdominios.dev/api";
+//const urlBase = "http://localhost:3000/api";
+const urlBase = "https://misdominios.dev/api";
 
 // Variables para el mapa, seguimiento y sockets
 let map;

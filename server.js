@@ -26,9 +26,9 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Rutas API
-app.use('/auth', authRoutes);
-app.use('/institution',institutionRoutes);
-app.use('/route',routeRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/institution',institutionRoutes);
+app.use('/api/route',routeRoutes);
 //app.use('/api/users', userRoutes);
 //app.use('/api/locations', locationRoutes);
 
