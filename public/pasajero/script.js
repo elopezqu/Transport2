@@ -3,6 +3,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FicmllbDI5LXMiLCJhIjoiY20yMnZvYnExMDJwNzJqc
 
 //Variables
 let userMarker;
+let otherUsersMarkers = {};
 
 // Ubicacion disponible
 let isTracking = false;
@@ -13,6 +14,7 @@ let inRoute = false;
 //Sockets
 let isConnected = false;
 let currentRoomId = '';
+let usuarioId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 //Posicion
 let latitud = null;
@@ -259,14 +261,11 @@ function connectToServer() {
 
                 socket.emit('join-room', {
                     roomId: currentRoomId,
-                    userId: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+                    userId: usuarioId,
                     username: username
                 });
 
                 socket.emit('send_position', {
-                    roomId: currentRoomId,
-                    userId: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-                    username: username,
                     latitude: latitud,
                     longitude: longitud,
                     accuracy: exactitud
@@ -294,10 +293,44 @@ function connectToServer() {
         });
         
         // Recibir ubicación de otro usuario
-        socket.on('user-location', (data) => {
-            console.log('Ubicación recibida de otro usuario:', data);
-            //debugStatus.textContent = `Ubicación recibida de ${data.username}`;
-            //updateOtherUserPosition(data);
+        socket.on('user-location', (userData) => {
+            console.log('Ubicación recibida de otro usuario:', userData);
+            console.log(`Ubicación recibida de ${userData.username}`);
+            // No actualizar nuestra propia ubicación
+            if (userData.userId === usuarioId) return;
+            
+            // Si ya existe un marcador para este usuario, actualizarlo
+            if (otherUsersMarkers[userData.userId] && map) {
+                otherUsersMarkers[userData.userId].setLngLat([userData.longitude, userData.latitude]);
+                //debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
+            } else if (map) {
+                // Crear un nuevo marcador para este usuario
+                
+                const el = document.createElement('div');
+                el.className = 'user-marker';
+                el.style.width = '16px';
+                el.style.height = '16px';
+                el.style.backgroundColor = '#d62912ff';
+                el.style.borderRadius = '50%';
+                el.style.border = '2px solid white';
+                el.style.boxShadow = '0 0 8px rgba(0, 0, 0, 0.3)';
+                
+                const marker = new mapboxgl.Marker(el)
+                    .setLngLat([userData.longitude, userData.latitude])
+                    .addTo(map);
+                
+                // Añadir popup con el nombre de usuario
+                marker.setPopup(new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`<strong>${userData.username}</strong><br>Actualizado: ${new Date().toLocaleTimeString()}`));
+                
+                otherUsersMarkers[userData.userId] = marker;
+                
+                // Actualizar la lista de usuarios
+                //updateUserList(userData, color, 'add');
+                
+                //debugStatus.textContent = `Nuevo usuario: ${userData.username}`;
+                //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
+            }
         });
         
         // Recibir ubicaciones existentes al conectarse
