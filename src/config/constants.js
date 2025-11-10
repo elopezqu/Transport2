@@ -7,7 +7,9 @@ module.exports = {
         USER_DISCONNECTED: 'user-disconnected',
         ROOM_JOINED: 'room-joined',
         USER_LOCATION: 'user-location',
-        EXISTING_LOCATIONS: 'existing-locations'
+        EXISTING_LOCATIONS: 'existing-locations',
+        ROOM_EXISTS: 'room-exists',
+        CHECK_ROOM: 'check-room'
     },
     MESSAGES: {
         INVALID_DATA: 'Datos incompletos para unirse a la sala',

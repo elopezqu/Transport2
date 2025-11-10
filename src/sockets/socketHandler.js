@@ -15,6 +15,13 @@ class SocketHandler {
             console.log('Usuario conectado desde origen:', socket.handshake.headers.origin);
             console.log('ID de conexión:', socket.id);
 
+            // Consultar sala existente
+            socket.on(SOCKET_EVENTS.CHECK_ROOM, async (roomId) => {
+            // usar la versión que prefieras; aquí usamos la async
+            const exists = await this.checkRoomExists(roomId);
+            socket.emit(SOCKET_EVENTS.ROOM_EXISTS, { roomId, exists });
+            });
+            
             // Unirse a una sala específica
             socket.on(SOCKET_EVENTS.JOIN_ROOM, (data) => this.handleJoinRoom(socket, data));
             
@@ -92,6 +99,12 @@ class SocketHandler {
             delete connectedUsers[socket.id];
         }
     }
+
+    checkRoomExists(roomId) {
+        const room = this.io.sockets.adapter.rooms.get(roomId);
+        return !!room && room.size > 0;
+    }
+
 }
 
 module.exports = (io) => {
