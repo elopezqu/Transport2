@@ -32,7 +32,7 @@ const titleInstitution = document.getElementById("titleInstitution");
 
 //URL_API
 //const urlBase = "http://localhost:3000/api";
-const urlBase = "https://misdominios.dev/api";
+const urlBase = "https://misdominios.dev";
 
 // Variables para el mapa, seguimiento y sockets
 let map;
@@ -91,7 +91,7 @@ function setupGPXFunctionality() {
         console.log(`Valor "${select.value}" GPX`);
 
         //Api
-        const response = await fetch(`${urlBase}/route/routeid`,{
+        const response = await fetch(`${urlBase}/api/route/routeid`,{
             method : "POST",
             headers : {
                 "Content-Type": "application/json",
@@ -152,7 +152,7 @@ function setupGPXFunctionality() {
             if(isTracking && inRoute){
                 const startBtn = document.getElementById('start');
                 startBtn.disabled = false;
-                connectToServer()
+                startBtn.addEventListener('click', connectToServer);
             }
             console.log(`Ruta GPX cargada correctamente`);
             document.getElementById('load-gpx').disabled = true;
@@ -221,11 +221,11 @@ function generateUserId() {
 function connectToServer() {
     const username = 'Conductor';
     //const serverUrl = serverUrlInput.value || 'misdominios.dev';
-    const serverUrl = 'localhost:3000';
+    //const serverUrl = 'socket.io';
     currentRoomId = 'Viaje';
-    
-    // Ya no necesitamos el puerto, ya que usamos el mismo dominio
-    const serverFullUrl = `http://${serverUrl}`;
+
+    // Url Base
+    const serverFullUrl = `${urlBase}`;
     
     console.log(`Conectando a ${serverFullUrl} como ${username} (${userId}) en sala ${currentRoomId}...`);
     
@@ -675,7 +675,7 @@ function isMobileDevice() {
 async function getRoutes(id) {
     
     //Api
-    const response = await fetch(`${urlBase}/route/institution`,{
+    const response = await fetch(`${urlBase}/api/route/institution`,{
             method : "POST",
             headers : {
                 "Content-Type": "application/json",
@@ -703,7 +703,7 @@ async function getRoutes(id) {
 async function getInstitution(id){
     try{
     
-        const response = await fetch(`${urlBase}/institution/user`,{
+        const response = await fetch(`${urlBase}/api/institution/user`,{
             method : "POST",
             headers : {
                 "Content-Type": "application/json",
@@ -750,7 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Ajustar el valor del servidor para usar HTTPS
     //serverUrlInput.value = 'misdominios.dev';
-    serverPortInput.style.display = 'none';
+    //serverPortInput.style.display = 'none';
     
     // Configurar información de depuración
     debugUserId.textContent = userId;
