@@ -753,7 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //serverPortInput.style.display = 'none';
     
     // Configurar información de depuración
-    debugUserId.textContent = userId;
+    //debugUserId.textContent = userId;
     
 });
 
