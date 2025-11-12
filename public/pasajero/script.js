@@ -15,6 +15,8 @@ let inRoute = false;
 let isConnected = false;
 let currentRoomId = '';
 let usuarioId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+let socket = null;
+let nombre = 'Pasajero';
 
 //Posicion
 let latitud = null;
@@ -136,6 +138,22 @@ function updatePosition(position) {
         userMarker.setLngLat([longitude, latitude]);
     }
     
+    // Enviar la ubicación al servidor si está conectado
+    if (isConnected && socket) {
+        
+        const locationData = {
+            userId: userId,
+            username: nombre,
+            roomId: currentRoomId,
+            latitude: latitude,
+            longitude: longitude,
+            accuracy: accuracy,
+            timestamp: new Date().toISOString()
+        };
+        
+        socket.emit('location-update-pasajero', locationData);
+        //debugStatus.textContent = 'Enviando ubicación...';
+    }
 }
 
 // Manejar errores de geolocalización

@@ -1,6 +1,8 @@
 module.exports = {
     SOCKET_EVENTS: {
         JOIN_ROOM: 'join-room',
+        // evento enviado por el pasajero para notificar su ubicación al conductor
+        LOCATION_UPDATE_PASAJERO: 'location-update-pasajero',
         LOCATION_UPDATE: 'location-update',
         REQUEST_LOCATIONS: 'request-locations',
         USER_CONNECTED: 'user-connected',

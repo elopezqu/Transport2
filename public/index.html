@@ -206,7 +206,11 @@
                     // Redirigir
                     console.log("Tipo: ",result.user.type)
                     if(result.user.type == 2){
-                        window.location.href = './conductor/conductor.html?id='+result.user.id;
+                        // Crear cookie que expira en 1 día
+                        setCookie('usuarioLogueado', 'true', 1);
+                        setCookie(username, 'conductor', 1);
+                        console.log('Cookies creadas:', document.cookie);
+                        //window.location.href = './conductor/conductor.html?id='+result.user.id;
                     } else {
                         if (result.user.type == 1){
                             console.log('redifirgir admin')
@@ -228,6 +232,15 @@
             
     
         });
+
+        // Función para crear cookies
+        function setCookie(nombre, valor, dias) {
+            const fecha = new Date();
+            fecha.setTime(fecha.getTime() + (dias * 24 * 60 * 60 * 1000));
+            const expira = "expires=" + fecha.toUTCString();
+            document.cookie = nombre + "=" + valor + ";" + expira + ";path=/";
+            
+        }
         
         // Efecto de enfoque en los campos de entrada
         const inputs = document.querySelectorAll('input');

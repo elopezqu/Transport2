@@ -48,6 +48,7 @@ let socket = null;
 let isConnected = false;
 let userId = generateUserId();
 let currentRoomId = '';
+let nombre = 'Conductor';
 
 // Colores para los diferentes usuarios
 const userColors = [
@@ -219,7 +220,7 @@ function generateUserId() {
 
 // Conectar al servidor de WebSockets
 function connectToServer() {
-    const username = 'Conductor';
+    
     //const serverUrl = serverUrlInput.value || 'misdominios.dev';
     //const serverUrl = 'socket.io';
     currentRoomId = 'Viaje';
@@ -227,7 +228,7 @@ function connectToServer() {
     // Url Base
     const serverFullUrl = `${urlBase}`;
     
-    console.log(`Conectando a ${serverFullUrl} como ${username} (${userId}) en sala ${currentRoomId}...`);
+    console.log(`Conectando a ${serverFullUrl} como ${nombre} (${userId}) en sala ${currentRoomId}...`);
     
     // Conectar con el servidor Socket.io
     try {
@@ -255,7 +256,7 @@ function connectToServer() {
             socket.emit('join-room', {
                 roomId: currentRoomId,
                 userId: userId,
-                username: username
+                username: nombre
             });
             
             // Solicitar ubicaciones existentes
@@ -483,11 +484,11 @@ function updatePosition(position) {
     
     // Enviar la ubicación al servidor si está conectado
     if (isConnected && socket) {
-        const username = 'UsuarioAnónimo';
+        //const username = 'UsuarioAnónimo';
         
         const locationData = {
             userId: userId,
-            username: username,
+            username: nombre,
             roomId: currentRoomId,
             latitude: latitude,
             longitude: longitude,
@@ -722,8 +723,53 @@ async function getInstitution(id){
 }
 
 
+
+// VERIFICAR AUTENTICACIÓN AL CARGAR LA PÁGINA
+window.onload = function() {
+    if (!verificarAutenticacion()) {
+        //window.location.href = `file:///C:/Users/DEDS3/OneDrive/Documentos/Tesis/Transport2/public/index.html`;
+        window.location.href = `${urlBase}`;
+        return;
+    }
+    
+};
+
+// Función para verificar si está logueado
+function verificarAutenticacion() {
+    const logueado = getCookie('usuarioLogueado');
+    return logueado === 'true';
+}
+
+// Función para obtener cookies
+function getCookie(nombre) {
+    const nombreEQ = nombre + "=";
+    const cookies = document.cookie.split(';');
+    
+    for(let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1, cookie.length);
+        }
+        if (cookie.indexOf(nombreEQ) === 0) {
+            return cookie.substring(nombreEQ.length, cookie.length);
+        }
+    }
+    return null;
+}
+
+// Función para cerrar sesión
+function cerrarSesion() {
+    // Eliminar cookies estableciendo fecha pasada
+    document.cookie = "usuarioLogueado=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "nombreUsuario=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = 'login.html';
+}
+
+
+
 // Inicializar la aplicación cuando se cargue la página
 document.addEventListener('DOMContentLoaded', () => {
+    
     initMap();
     startTracking();
     
@@ -738,6 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     //Inicio
     document.getElementById('start').disabled = true;
+
 
 
     
@@ -762,3 +809,5 @@ document.getElementById('start').addEventListener('click', () => {
     console.log('Arrow function ejecutada');
     //connectToServer();
 });
+
+

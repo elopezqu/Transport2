@@ -22,6 +22,9 @@ class SocketHandler {
             socket.emit(SOCKET_EVENTS.ROOM_EXISTS, { roomId, exists });
             });
             
+            // Enviar ubicacion de pasajero a conductor
+            socket.on(SOCKET_EVENTS.LOCATION_UPDATE_PASAJERO, (data) => this.handleLocationUpdatePasajero(socket, data));
+            
             // Unirse a una sala específica
             socket.on(SOCKET_EVENTS.JOIN_ROOM, (data) => this.handleJoinRoom(socket, data));
             
@@ -36,6 +39,44 @@ class SocketHandler {
         });
     }
 
+    handleLocationUpdatePasajero(socket, data) {
+        // data expected shape: { userId, username, roomId, ...otherFields, driverId? }
+        try {
+            if (!data || !data.roomId) {
+                console.log('handleLocationUpdatePasajero: datos inválidos', data);
+                return;
+            }
+
+            // almacenar la ubicación del pasajero como en handleLocationUpdate
+            userLocations[data.userId] = {
+                ...data,
+                socketId: socket.id,
+                timestamp: new Date().toISOString()
+            };
+
+            // Si se recibió driverId, enviar únicamente al conductor (si está conectado)
+            if (data.driverId) {
+                // Buscar el socket del conductor en connectedUsers
+                const conductorSocketId = Object.keys(connectedUsers).find(sid => connectedUsers[sid].userId === data.driverId);
+                if (conductorSocketId && this.io.sockets.sockets.get(conductorSocketId)) {
+                    // Enviar evento directo al conductor
+                    this.io.to(conductorSocketId).emit(SOCKET_EVENTS.USER_LOCATION, data);
+                    console.log(`Enviada ubicación del pasajero ${data.userId} al conductor ${data.driverId}`);
+                    return;
+                } else {
+                    console.log(`Conductor ${data.driverId} no conectado en este nodo; enviando a la sala ${data.roomId}`);
+                }
+            }
+
+            // Si no hay driverId o el conductor no está localmente conectado, emitir a la sala
+            socket.to(data.roomId).emit(SOCKET_EVENTS.USER_LOCATION, data);
+            console.log(`${MESSAGES.LOCATION_UPDATED} para pasajero ${data.userId} en sala ${data.roomId}`);
+
+        } catch (err) {
+            console.error('Error en handleLocationUpdatePasajero:', err);
+        }
+    }
+    
     handleJoinRoom(socket, data) {
         const { roomId, userId, username } = data;
         
