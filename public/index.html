@@ -149,14 +149,6 @@
                 <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
             </div>
             
-            <div class="remember-forgot">
-                <div class="remember-me">
-                    <input type="checkbox" id="remember">
-                    <label for="remember">Recordarme</label>
-                </div>
-                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
-            </div>
-            
             <button type="submit" class="login-button">Iniciar Sesión</button>
             
         </form>
@@ -208,9 +200,8 @@
                     if(result.user.type == 2){
                         // Crear cookie que expira en 1 día
                         setCookie('usuarioLogueado', 'true', 1);
-                        setCookie(username, 'conductor', 1);
                         console.log('Cookies creadas:', document.cookie);
-                        //window.location.href = './conductor/conductor.html?id='+result.user.id;
+                        window.location.href = './conductor/conductor.html?id='+result.user.id;
                     } else {
                         if (result.user.type == 1){
                             console.log('redifirgir admin')

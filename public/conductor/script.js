@@ -760,11 +760,9 @@ function getCookie(nombre) {
 // Función para cerrar sesión
 function cerrarSesion() {
     // Eliminar cookies estableciendo fecha pasada
-    document.cookie = "usuarioLogueado=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "nombreUsuario=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    window.location.href = 'login.html';
+    document.cookie = "usuarioLogueado=false; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = `${urlBase}`;
 }
-
 
 
 // Inicializar la aplicación cuando se cargue la página
