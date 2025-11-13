@@ -441,6 +441,9 @@ input, select {
     /* Hide routes card on small screens to keep UI simple */
     #routes-tab { display: none; }
 
+    /* Map controls shown in mobile inside the map tab */
+    .map-controls { display: block; margin-bottom: 0.8rem; }
+
     /* Floating logout visible only on mobile */
     .floating-logout { display: flex; }
     .logout-btn { display: none; }
