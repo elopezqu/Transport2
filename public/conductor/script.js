@@ -3,35 +3,13 @@
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FicmllbDI5LXMiLCJhIjoiY20yMnZvYnExMDJwNzJqcTV3d3J3cmUxdSJ9.fA3z9inzGxKvS2GC_rH20g';
 
 // Elementos de la interfaz
-const connectBtn = document.getElementById('connect-btn');
-const disconnectBtn = document.getElementById('disconnect-btn');
-const connectionIndicator = document.getElementById('connection-indicator');
-const connectionText = document.getElementById('connection-text');
-const toggleTrackingBtn = document.getElementById('toggle-tracking');
-const trackingIndicator = document.getElementById('tracking-indicator');
-const trackingText = document.getElementById('tracking-text');
-const latElement = document.getElementById('lat');
-const lngElement = document.getElementById('lng');
-const accuracyElement = document.getElementById('accuracy');
-const userList = document.getElementById('user-list');
-const usernameInput = document.getElementById('username');
-const serverUrlInput = document.getElementById('server-url');
-const serverPortInput = document.getElementById('server-port');
-const roomIdInput = document.getElementById('room-id');
 const mobileTabs = document.getElementById('mobile-tabs');
 const tabContents = document.querySelectorAll('.tab-content');
-const debugInfo = document.getElementById('debug-info');
-const debugUserId = document.getElementById('debug-user-id');
-const debugSocketId = document.getElementById('debug-socket-id');
-const debugUsersCount = document.getElementById('debug-users-count');
-
-
 
 //Titulo institucion
 const titleInstitution = document.getElementById("titleInstitution");
 
 //URL_API
-//const urlBase = "http://localhost:3000/api";
 const urlBase = "https://misdominios.dev";
 
 //Institucion actual
@@ -52,13 +30,10 @@ let socket = null;
 let isConnected = false;
 let userId = generateUserId();
 let currentRoomId = '';
-let nombre = 'Conductor';
+let nombre = '';
 
 // Colores para los diferentes usuarios
-const userColors = [
-    '#4269e1', '#e14f42', '#42e16a', '#e1d142', 
-    '#9c42e1', '#e1429c', '#42e1c9', '#e18942'
-];
+const userColors = '#2eb613ff';
 
 // Inicializar el mapa
 function initMap() {
@@ -75,11 +50,9 @@ function initMap() {
     // Cargar el mapa
     map.on('load', () => {
         console.log('Mapa cargado correctamente');
-        //debugStatus.textContent = 'Mapa cargado';
         
         // Configurar funcionalidad GPX después de que el mapa esté listo
         setupGPXFunctionality();
-        //addGPXToMap();
     });
 }
 
@@ -201,8 +174,6 @@ function setupGPXFunctionality() {
 
     // Configurar event listeners para GPX
     const loadGpxBtn = document.getElementById('load-gpx');
-    //onst removeGpxBtn = document.getElementById('remove-gpx-btn');
-    //const gpxFileInput = document.getElementById('gpx-file-input');
     
     loadGpxBtn.addEventListener('click', addGPXToMap);
     
@@ -210,19 +181,6 @@ function setupGPXFunctionality() {
     document.getElementById('gpxSelect').addEventListener('change', function() {
         document.getElementById('load-gpx').disabled = false
     });
-
-    
-    //if (removeGpxBtn) {
-    //    removeGpxBtn.addEventListener('click', removeGPXRoute);
-    //}
-    
-    //if (gpxFileInput) {
-    //    gpxFileInput.addEventListener('change', function() {
-    //        if (this.files.length > 0) {
-    //            loadGPXFromLocalFile();
-    //        }
-    //    });
-    //}
 
 }
 
@@ -234,11 +192,11 @@ function generateUserId() {
 // Conectar al servidor de WebSockets
 function connectToServer() {
     
+    //Configuraciones boton start
     const startBtn = document.getElementById('start');
     startBtn.textContent = "Finalizar el viaje";
     startBtn.style.backgroundColor = "#e14f42";
     
-    currentRoomId = 'Viaje';
 
     // Url Base
     const serverFullUrl = `${urlBase}`;
@@ -258,14 +216,6 @@ function connectToServer() {
             //debugSocketId.textContent = socket.id;
             
             isConnected = true;
-            //connectionIndicator.classList.remove('inactive');
-            //connectionIndicator.classList.add('connected');
-            //connectionText.textContent = 'Conectado';
-            //connectBtn.disabled = true;
-            //disconnectBtn.disabled = false;
-            //usernameInput.disabled = true;
-            //serverUrlInput.disabled = true;
-            //roomIdInput.disabled = true;
             
             // Unirse a la sala
             socket.emit('join-room', {
@@ -280,29 +230,25 @@ function connectToServer() {
         
         socket.on('disconnect', () => {
             console.log('Socket desconectado del servidor');
-            //debugStatus.textContent = 'Desconectado del servidor';
-            //handleDisconnection();
+ 
         });
         
         socket.on('connect_error', (error) => {
             console.error('Error de conexión:', error);
             //debugStatus.textContent = `Error de conexión: ${error.message}`;
             alert(`Error al conectar con el servidor: ${error.message}`);
-            //handleDisconnection();
+
         });
         
         // Recibir ubicación de otro usuario
         socket.on('user-location', (data) => {
             console.log('Ubicación recibida de otro usuario:', data);
-            //debugStatus.textContent = `Ubicación recibida de ${data.username}`;
             updateOtherUserPosition(data);
         });
         
         // Recibir ubicaciones existentes al conectarse
         socket.on('existing-locations', (locations) => {
             console.log('Ubicaciones existentes recibidas:', locations);
-            //debugStatus.textContent = `Recibidas ${locations.length} ubicaciones existentes`;
-            
             // Limpiar marcadores existentes primero
             removeAllOtherUserMarkers();
             
@@ -310,22 +256,20 @@ function connectToServer() {
                 updateOtherUserPosition(location);
             });
             
-            //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
         });
         
         // Usuario conectado
         socket.on('user-connected', (userData) => {
             console.log('Usuario conectado:', userData);
-            //debugStatus.textContent = `${userData.username} se ha conectado`;
             
             // Actualizar lista de usuarios
-            updateUserList(userData, getColorForUserId(userData.userId), 'add');
+            updateUserList(userData, userColors, 'add');
         });
         
         // Usuario desconectado
         socket.on('user-disconnected', (userData) => {
             console.log('Usuario desconectado:', userData);
-            //debugStatus.textContent = `${userData.username} se ha desconectado`;
+
             removeOtherUserMarker(userData.userId);
             
             // Actualizar lista de usuarios
@@ -335,20 +279,12 @@ function connectToServer() {
         // Confirmación de unión a sala
         socket.on('room-joined', (data) => {
             console.log('Unido a la sala:', data);
-            //debugStatus.textContent = `Unido a la sala: ${data.roomId}`;
         });
         
     } catch (error) {
         console.error('Error al conectar con el servidor:', error);
-        //debugStatus.textContent = `Error: ${error.message}`;
         alert('Error al conectar con el servidor. Verifica la URL.');
     }
-}
-
-// Obtener color para un ID de usuario
-function getColorForUserId(userId) {
-    const colorIndex = Math.abs(hashCode(userId)) % userColors.length;
-    return userColors[colorIndex];
 }
 
 // Manejar la desconexión
@@ -366,19 +302,17 @@ function handleDisconnection() {
     // Actualizar lista de usuarios
     userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-color" style="background-color: #4269e1;"></div><span>Ningún usuario conectado</span></div></div>';
     
-    //debugStatus.textContent = 'Desconectado';
-    //debugSocketId.textContent = 'N/A';
-    //debugUsersCount.textContent = '0';
 }
 
 // Desconectar del servidor
 function disconnectFromServer() {
+    
+    //Configuraciones boton start
     const startBtn = document.getElementById('start');
     startBtn.textContent = "Iniciar el viaje";
     startBtn.style.backgroundColor = "#4caf50";
 
     if (socket) {
-        //debugStatus.textContent = 'Desconectando...';
         socket.disconnect();
         socket = null;
     }
@@ -401,13 +335,8 @@ function startTracking() {
         return;
     }
     
-    // Actualizar interfaz
     isTracking = true;
-    //trackingIndicator.classList.remove('inactive');
-    //trackingIndicator.classList.add('tracking');
-    //trackingText.textContent = 'Seguimiento activo';
-    //toggleTrackingBtn.textContent = 'Detener Seguimiento';
-    //debugStatus.textContent = 'Seguimiento de ubicación activo';
+  
     
     // Opciones para la geolocalización
     const options = {
@@ -440,11 +369,6 @@ function stopTracking() {
     
     // Actualizar interfaz
     isTracking = false;
-    //trackingIndicator.classList.remove('tracking');
-    //trackingIndicator.classList.add('inactive');
-    //trackingText.textContent = 'Seguimiento inactivo';
-    //toggleTrackingBtn.textContent = 'Iniciar Seguimiento';
-    //debugStatus.textContent = 'Seguimiento de ubicación detenido';
 }
 
 // Actualizar la posición en el mapa
@@ -452,14 +376,9 @@ function updatePosition(position) {
     const { latitude, longitude, accuracy } = position.coords;
     console.log('RAW pos', latitude, longitude, 'acc (m):', accuracy);
     
-    // Actualizar la interfaz con las coordenadas
-    //latElement.textContent = latitude.toFixed(6);
-    //lngElement.textContent = longitude.toFixed(6);
-    //accuracyElement.textContent = accuracy.toFixed(2);
     
     const MAX_ACCEPTED_ACCURACY = 6000; // metros, ajusta según tu caso
     if (accuracy > MAX_ACCEPTED_ACCURACY) {
-        //debugStatus.textContent = `Ignorando lectura por baja precisión (${Math.round(accuracy)} m)`;
         // opcional: seguir esperando mejores lecturas sin hacer flyTo ni emitir al servidor
         return;
     }
@@ -507,15 +426,12 @@ function updatePosition(position) {
         };
         
         socket.emit('location-update', locationData);
-        //debugStatus.textContent = 'Enviando ubicación...';
     }
 }
 
 // Manejar errores de geolocalización
 function handleError(error) {
-    console.error('Error obteniendo la ubicación:', error);
-    //debugStatus.textContent = `Error de geolocalización: ${error.message}`;
-    
+    console.error('Error obteniendo la ubicación:', error);    
     let errorMessage;
     switch(error.code) {
         case error.PERMISSION_DENIED:
@@ -546,16 +462,14 @@ function updateOtherUserPosition(userData) {
         //debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
     } else if (map) {
         // Crear un nuevo marcador para este usuario
-        const color = getColorForUserId(userData.userId);
-        
         const el = document.createElement('div');
         el.className = 'user-marker';
         el.style.width = '16px';
         el.style.height = '16px';
-        el.style.backgroundColor = color;
+        el.style.backgroundColor = userColors;
         el.style.borderRadius = '50%';
         el.style.border = '2px solid white';
-        el.style.boxShadow = '0 0 8px rgba(0, 0, 0, 0.3)';
+        el.style.boxShadow = '0 0 8px rgba(255, 0, 0, 0.3)';
         
         const marker = new mapboxgl.Marker(el)
             .setLngLat([userData.longitude, userData.latitude])
@@ -568,10 +482,8 @@ function updateOtherUserPosition(userData) {
         otherUsersMarkers[userData.userId] = marker;
         
         // Actualizar la lista de usuarios
-        updateUserList(userData, color, 'add');
+        updateUserList(userData, userColors, 'add');
         
-        //debugStatus.textContent = `Nuevo usuario: ${userData.username}`;
-        //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
     }
 }
 
@@ -583,8 +495,6 @@ function removeOtherUserMarker(userId) {
         
         // Actualizar la lista de usuarios
         updateUserList({userId: userId}, null, 'remove');
-        
-        //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
     }
 }
 
@@ -594,7 +504,6 @@ function removeAllOtherUserMarkers() {
         otherUsersMarkers[userId].remove();
     }
     otherUsersMarkers = {};
-    //debugUsersCount.textContent = '0';
 }
 
 // Actualizar la lista de usuarios conectados
@@ -682,7 +591,6 @@ function isMobileDevice() {
 }
 
 //Funcion para cargar rutas
-
 async function getRoutes(id) {
     
     //Api
