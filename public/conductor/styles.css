@@ -424,3 +424,15 @@ input, select {
     background-color: #c0392b;
 }
 
+
+/* Texto para desktop */
+.responsive-btn::before {
+  content: attr(data-desktop);
+}
+
+/* En móviles cambia el texto */
+@media (max-width: 768px) {
+  .responsive-btn::before {
+    content: attr(data-mobile);
+  }
+}
