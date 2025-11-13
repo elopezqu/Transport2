@@ -709,8 +709,28 @@ async function getRoutes(id) {
     
 }
 
-//Funcion para datos de Institucion
+//Funcion para datos de Usuario
+async function getNombreUsuario(id){
+    try{
+        const response = await fetch(`${urlBase}/api/user/id`,{
+            method : "POST",
+            headers : {
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({idUser: id}) 
+        });
+        const data = await response.json();
+        //Nombre usuario
+        nombre = data.user.name;
+        console.log("Nombre usuario :", nombre);
 
+
+    } catch (error){
+        alert('Error de conexión (Usuario)');
+    }
+}
+
+//Funcion para datos de Institucion
 async function getInstitution(id){
     try{
     
@@ -791,6 +811,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Institucion
     getInstitution(id);
+
+    getNombreUsuario(id);
     
     //Inicio
     document.getElementById('start').disabled = true;
@@ -805,13 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initMobileTabs();
         mobileTabs.style.display = 'flex';
     }
-    
-    // Ajustar el valor del servidor para usar HTTPS
-    //serverUrlInput.value = 'misdominios.dev';
-    //serverPortInput.style.display = 'none';
-    
-    // Configurar información de depuración
-    //debugUserId.textContent = userId;
+
     
 });
 

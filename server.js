@@ -8,7 +8,7 @@ require('dotenv').config();
 const authRoutes = require('./src/routes/authRoutes');
 const institutionRoutes = require("./src/routes/institutionRoutes");
 const routeRoutes = require("./src/routes/routeRoutes");
-//const userRoutes = require('./src/routes/userRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 //const locationRoutes = require('./src/routes/locationRoutes');
 
 // Importación del manejador de sockets
@@ -29,7 +29,7 @@ app.use(express.static('public'));
 app.use('/api/auth', authRoutes);
 app.use('/api/institution',institutionRoutes);
 app.use('/api/route',routeRoutes);
-//app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
 //app.use('/api/locations', locationRoutes);
 
 // Configuración de Socket.io

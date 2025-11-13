@@ -33,7 +33,7 @@ class UserModel {
     // Obtener usuario por ID
     async findById(userId) {
         const result = await pool.query(
-            'SELECT id, username, email, nombre_completo, created_at FROM usuarios WHERE id = $1',
+            'SELECT * FROM usuarios WHERE id = $1',
             [userId]
         );
         return result.rows[0];
