@@ -759,7 +759,6 @@ function getCookie(nombre) {
 
 // Función para cerrar sesión
 
-document.getElementById('logoutBtn').addEventListener('click', cerrarSesion);
 
 function cerrarSesion() {
     // Eliminar cookies estableciendo fecha pasada
@@ -786,9 +785,10 @@ document.addEventListener('DOMContentLoaded', () => {
     //Inicio
     document.getElementById('start').disabled = true;
 
+    //Cerrar sesion
+    document.getElementById('logoutBtn').addEventListener('click', cerrarSesion);
 
 
-    
 
     // Inicializar pestañas móviles si es necesario
     if (isMobileDevice()) {
