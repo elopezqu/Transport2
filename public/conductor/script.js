@@ -229,6 +229,10 @@ function generateUserId() {
 // Conectar al servidor de WebSockets
 function connectToServer() {
     
+    const startBtn = document.getElementById('start');
+    startBtn.textContent = "Finalizar el viaje";
+    startBtn.style.backgroundColor = "#e14f42";
+    
     currentRoomId = 'Viaje';
 
     // Url Base
@@ -364,6 +368,10 @@ function handleDisconnection() {
 
 // Desconectar del servidor
 function disconnectFromServer() {
+    const startBtn = document.getElementById('start');
+    startBtn.textContent = "Iniciar el viaje";
+    startBtn.style.backgroundColor = "#4caf50";
+
     if (socket) {
         console.log('Desconectando del servidor...');
         //debugStatus.textContent = 'Desconectando...';
@@ -808,14 +816,14 @@ const startBtn = document.getElementById('start');
 if(isConnected){
     console.log("Ya conectado");
     startBtn.addEventListener('click', disconnectFromServer);
-    startBtn.addEventListener('click', connectToServer);
-    startBtn.textContent = "Iniciar el viaje";
-    startBtn.style.backgroundColor = "#4caf50";
+    
 }else{
     console.log("No conectado");
     startBtn.addEventListener('click', connectToServer);
-    startBtn.textContent = "Finalizar el viaje";
-    startBtn.style.backgroundColor = "#e14f42";
+    if(inRoute){
+        startBtn.disabled = true;
+    }
+
 }
 
 
