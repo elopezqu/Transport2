@@ -120,7 +120,7 @@ function setupGPXFunctionality() {
                 source: 'gpx-route',
                 filter: ['==', ['geometry-type'], 'LineString'],  // Solo líneas
                 paint: {
-                    'line-color': '#2c2d2eff',  //Gris oscuro
+                    'line-color': 'black',  //Gris oscuro
                     'line-width': 4,          // Grosor
                     'line-opacity': 0.8
                 }
