@@ -556,45 +556,7 @@ function hashCode(str) {
 }
 
 // Funcionalidad para pestañas en móviles
-function initMobileTabs() {
-    if (mobileTabs) {
-        const tabs = mobileTabs.querySelectorAll('.mobile-tab');
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabName = tab.getAttribute('data-tab');
-                
-                // Activar pestaña clickeada
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Mostrar contenido correspondiente
-                tabContents.forEach(content => {
-                    content.style.display = 'none';
-                    content.classList.remove('active');
-                });
 
-                const el = document.getElementById(`${tabName}-tab`);
-                if (el) {
-                    el.style.display = 'block';
-                    el.classList.add('active');
-                }
-
-                // If showing map, trigger resize so Mapbox redraws correctly
-                if (tabName === 'map' && typeof map !== 'undefined' && map && map.resize) {
-                    setTimeout(() => { try { map.resize(); } catch(e){} }, 200);
-                }
-            });
-        });
-        
-        // Ocultar todos los contenidos inicialmente excepto el primero
-        tabContents.forEach((content, index) => {
-            if (index > 0) {
-                content.style.display = 'none';
-            }
-        });
-    }
-}
 
 // Verificar si es un dispositivo móvil
 function isMobileDevice() {
