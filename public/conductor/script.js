@@ -267,12 +267,6 @@ function connectToServer() {
             
             // Solicitar ubicaciones existentes
             socket.emit('request-locations', currentRoomId);
-
-            const btnStart =document.getElementById('start');
-            btnStart.disabled = false;
-            btnStart.textContent = "Finalizar el viaje";
-            console.log(btnStart.value);
-            btnStart.style.backgroundColor = "#e14f42";
         });
         
         socket.on('disconnect', () => {
@@ -351,14 +345,6 @@ function getColorForUserId(userId) {
 // Manejar la desconexión
 function handleDisconnection() {
     isConnected = false;
-    //connectionIndicator.classList.remove('connected');
-    //connectionIndicator.classList.add('inactive');
-    //connectionText.textContent = 'Desconectado';
-    //connectBtn.disabled = false;
-    //disconnectBtn.disabled = true;
-    //usernameInput.disabled = false;
-    //serverUrlInput.disabled = false;
-    //roomIdInput.disabled = false;
     
     // Detener seguimiento si estaba activo
     if (isTracking) {
@@ -374,9 +360,6 @@ function handleDisconnection() {
     //debugStatus.textContent = 'Desconectado';
     //debugSocketId.textContent = 'N/A';
     //debugUsersCount.textContent = '0';
-
-    const btnStart =document.getElementById('start');
-    btnStart.textContent = "Iniciar el viaje";
 }
 
 // Desconectar del servidor
@@ -825,9 +808,14 @@ const startBtn = document.getElementById('start');
 if(isConnected){
     console.log("Ya conectado");
     startBtn.addEventListener('click', disconnectFromServer);
+    startBtn.addEventListener('click', connectToServer);
+    startBtn.textContent = "Iniciar el viaje";
+    startBtn.style.backgroundColor = "#4caf50";
 }else{
     console.log("No conectado");
     startBtn.addEventListener('click', connectToServer);
+    startBtn.textContent = "Finalizar el viaje";
+    startBtn.style.backgroundColor = "#e14f42";
 }
 
 
