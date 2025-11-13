@@ -444,7 +444,7 @@ input, select {
     }
     .header-content {
         display: grid;
-        justify-content: inher;
+        justify-content: inherit;
         position: relative;
     }
 }
