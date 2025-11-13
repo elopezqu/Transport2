@@ -156,7 +156,7 @@ function setupGPXFunctionality() {
                 startBtn.disabled = false;
                 
                 //Nombre de sala completo
-                currentRoomId += select.textContent;
+                currentRoomId += `-${select.textContent}`;
                 console.log(`Sala actual: ${currentRoomId}`);   
                     
             }
