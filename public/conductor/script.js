@@ -34,6 +34,9 @@ const titleInstitution = document.getElementById("titleInstitution");
 //const urlBase = "http://localhost:3000/api";
 const urlBase = "https://misdominios.dev";
 
+//Institucion actual
+let institution = '';
+
 // Variables para el mapa, seguimiento y sockets
 let map;
 let userMarker;
@@ -156,7 +159,7 @@ function setupGPXFunctionality() {
                 startBtn.disabled = false;
                 
                 //Nombre de sala completo
-                currentRoomId += `-${select.options[select.selectedIndex].text}`;
+                currentRoomId = `${institution}-${select.options[select.selectedIndex].text}`;
                 console.log(`Sala actual: ${currentRoomId}`);   
                     
             }
@@ -721,7 +724,7 @@ async function getInstitution(id){
         const data = await response.json();
         //Nombre institucion
         titleInstitution.textContent = data.institution.name;
-        currentRoomId = data.institution.name;
+        institution = data.institution.name;
         //Cargar rutas
         getRoutes(data.institution.id);
 
