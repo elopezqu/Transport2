@@ -198,6 +198,10 @@ function setupGPXFunctionality() {
     
     loadGpxBtn.addEventListener('click', addGPXToMap);
     
+
+    document.getElementById('gpx-selector').addEventListener('change', function() {
+        document.getElementById('load-gpx').disabled = false
+    });
     
     //if (removeGpxBtn) {
     //    removeGpxBtn.addEventListener('click', removeGPXRoute);
