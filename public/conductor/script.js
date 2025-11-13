@@ -271,7 +271,8 @@ function connectToServer() {
 
             const btnStart =document.getElementById('start');
             btnStart.disabled = false;
-            btnStart.value = "Finalizar el viaje";
+            btnStart.textContent = "Finalizar el viaje";
+            console.log(btnStart.value);
             btnStart.style.backgroundColor = "#e14f42";
         });
         
