@@ -571,9 +571,19 @@ function initMobileTabs() {
                 // Mostrar contenido correspondiente
                 tabContents.forEach(content => {
                     content.style.display = 'none';
+                    content.classList.remove('active');
                 });
-                
-                document.getElementById(`${tabName}-tab`).style.display = 'block';
+
+                const el = document.getElementById(`${tabName}-tab`);
+                if (el) {
+                    el.style.display = 'block';
+                    el.classList.add('active');
+                }
+
+                // If showing map, trigger resize so Mapbox redraws correctly
+                if (tabName === 'map' && typeof map !== 'undefined' && map && map.resize) {
+                    setTimeout(() => { try { map.resize(); } catch(e){} }, 200);
+                }
             });
         });
         
