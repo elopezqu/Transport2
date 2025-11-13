@@ -803,14 +803,6 @@ document.addEventListener('DOMContentLoaded', () => {
     //Cerrar sesion
     const logoutBtnEl = document.getElementById('logoutBtn');
     logoutBtnEl.addEventListener('click', cerrarSesion);
-
-
-    //Conección al servidor ^^^^^^^^^^^^^^^^^^^^
-    if(isConnected){
-        startBtn.addEventListener('click', disconnectFromServer);
-    }else{
-        startBtn.addEventListener('click', connectToServer);
-    }
     
 
     // Inicializar pestañas móviles si es necesario
@@ -828,10 +820,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
 });
 
-//Conector con server
-document.getElementById('start').addEventListener('click', () => {
-    console.log('Arrow function ejecutada');
-    //connectToServer();
-});
+//Conección al servidor ^^^^^^^^^^^^^^^^^^^^
+    if(isConnected){
+        console.log("Ya conectado");
+        startBtn.addEventListener('click', disconnectFromServer);
+    }else{
+        console.log("No conectado");
+        startBtn.addEventListener('click', connectToServer);
+    }
 
 
