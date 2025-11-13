@@ -758,6 +758,9 @@ function getCookie(nombre) {
 }
 
 // Función para cerrar sesión
+
+document.getElementById('logoutBtn').addEventListener('click', cerrarSesion);
+
 function cerrarSesion() {
     // Eliminar cookies estableciendo fecha pasada
     document.cookie = "usuarioLogueado=false; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

@@ -393,7 +393,7 @@ input, select {
     padding: 8px 16px;
     cursor: pointer;
     font-size: 0.9rem;
-    width: 13%;
+    width: 10%;
 }
 
 .logout-btn:hover {
