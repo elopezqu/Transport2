@@ -815,10 +815,10 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById("start").addEventListener("click", function(){
     if(isConnected){
         console.log("Desconectando...");
-        startBtn.addEventListener('click', disconnectFromServer);
+        disconnectFromServer();
     }else{
         console.log("Conectando...");
-        startBtn.addEventListener('click', connectToServer);
+        connectToServer();
     }  
 }); 
 
