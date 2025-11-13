@@ -812,18 +812,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //Conección al servidor ^^^^^^^^^^^^^^^^^^^^
-const startBtn = document.getElementById('start');
-if(isConnected){
-    console.log("Ya conectado");
-    startBtn.addEventListener('click', disconnectFromServer);
-    
-}else{
-    console.log("No conectado");
-    startBtn.addEventListener('click', connectToServer);
-    if(inRoute){
-        startBtn.disabled = true;
-    }
-
-}
-
+document.getElementById("start").addEventListener("click", function(){
+    if(isConnected){
+        console.log("Desconectando...");
+        startBtn.addEventListener('click', disconnectFromServer);
+    }else{
+        console.log("Conectando...");
+        startBtn.addEventListener('click', connectToServer);
+    }  
+}); 
 
