@@ -300,6 +300,7 @@ function handleDisconnection() {
     removeAllOtherUserMarkers();
     
     // Actualizar lista de usuarios
+    const userList = document.getElementById('user-list');
     userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-color" style="background-color: #4269e1;"></div><span>Ningún usuario conectado</span></div></div>';
     
 }
