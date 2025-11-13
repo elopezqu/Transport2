@@ -153,6 +153,8 @@ function setupGPXFunctionality() {
             if(isTracking && inRoute){
                 const startBtn = document.getElementById('start');
                 startBtn.disabled = false;
+                //
+                //Conección al servidor
                 startBtn.addEventListener('click', connectToServer);
             }
             console.log(`Ruta GPX cargada correctamente`);
@@ -266,6 +268,11 @@ function connectToServer() {
             
             // Solicitar ubicaciones existentes
             socket.emit('request-locations', currentRoomId);
+
+            const btnStart =document.getElementById('start');
+            btnStart.disabled = false;
+            btnStart.value = "Finalizar el viaje";
+            btnStart.style.backgroundColor = "#e14f42";
         });
         
         socket.on('disconnect', () => {
