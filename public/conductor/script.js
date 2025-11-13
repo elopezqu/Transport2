@@ -44,6 +44,7 @@ let isTracking = false;
 //Ruta cargada
 let inRoute = false;
 
+//Sockets
 let socket = null;
 let isConnected = false;
 let userId = generateUserId();
@@ -154,8 +155,13 @@ function setupGPXFunctionality() {
                 const startBtn = document.getElementById('start');
                 startBtn.disabled = false;
                 //
-                //Conección al servidor
-                startBtn.addEventListener('click', connectToServer);
+                //Conección al servidor ^^^^^^^^^^^^^^^^^^^^
+                if(isConnected){
+                    startBtn.addEventListener('click', disconnectFromServer);
+                }else{
+                    startBtn.addEventListener('click', connectToServer);
+                }
+                    
             }
             console.log(`Ruta GPX cargada correctamente`);
             document.getElementById('load-gpx').disabled = true;
@@ -228,8 +234,6 @@ function generateUserId() {
 // Conectar al servidor de WebSockets
 function connectToServer() {
     
-    //const serverUrl = serverUrlInput.value || 'misdominios.dev';
-    //const serverUrl = 'socket.io';
     currentRoomId = 'Viaje';
 
     // Url Base
