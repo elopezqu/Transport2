@@ -69,7 +69,7 @@ header p {
     flex-direction: column;
     gap: 1.2rem;
     order: 2;
-    max-height: 50vh;
+    max-height: 20vh;
     overflow-y: auto;
 }
 
