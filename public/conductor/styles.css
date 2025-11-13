@@ -432,19 +432,19 @@ input, select {
 
 /* En móviles cambia el texto */
 @media (max-width: 768px) {
-  .logout-btn::before {
-    content: attr(data-mobile);
-  }
-  .logout-btn {
-    background-color: #e74c3c;
-    color: white;
-    padding: 8px 10px;
-    cursor: pointer;
-    font-size: 0.9rem;
+    .logout-btn::before {
+        content: attr(data-mobile);
     }
-    .header-content {
-    display: flex;
-    justify-content: right;
-    position: relative;
+    .logout-btn::before {
+        background-color: #e74c3c;
+        color: white;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .header-content::before {
+        display: flex;
+        justify-content: right;
+        position: relative;
     }
 }
