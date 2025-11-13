@@ -232,7 +232,6 @@ input, select {
     display: flex;
     border-bottom: 1px solid #ddd;
     margin-bottom: 1rem;
-    display: none;
 }
 
 .mobile-tab {
@@ -333,6 +332,28 @@ input, select {
     .mobile-tabs {
         display: none;
     }
+
+/* Botón flotante para logout */
+.floating-logout {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.floating-logout:hover { background: #c0392b; }
 
 }
 
