@@ -63,15 +63,8 @@ function setupGPXFunctionality() {
         // 1. Limpiar ruta anterior si existe
         removeGPXRoute();
             
-        // 2. Selección de ruta: preferir control móvil si existe
-        const selectMobileEl = document.getElementById('gpxSelect-mobile');
-        const selectEl = document.getElementById('gpxSelect');
-        const select = selectMobileEl || selectEl;
-
-        if (!select) {
-            console.error('No se encontró elemento select de GPX');
-            return;
-        }
+        // 2. Cual mapa
+        const select = document.getElementById('gpxSelect');
 
         console.log(`Valor "${select.value}" GPX`);
 
@@ -136,35 +129,15 @@ function setupGPXFunctionality() {
             
             if(isTracking && inRoute){
                 const startBtn = document.getElementById('start');
-                const startBtnMobile = document.getElementById('start-mobile');
-                if (startBtn) {
-                    startBtn.disabled = false;
-                    if (!startBtn.dataset.listenerAdded) {
-                        startBtn.addEventListener('click', () => {
-                            if(isConnected) disconnectFromServer(); else connectToServer();
-                        });
-                        startBtn.dataset.listenerAdded = '1';
-                    }
-                }
-                if (startBtnMobile) {
-                    startBtnMobile.disabled = false;
-                    if (!startBtnMobile.dataset.listenerAdded) {
-                        startBtnMobile.addEventListener('click', () => {
-                            if(isConnected) disconnectFromServer(); else connectToServer();
-                        });
-                        startBtnMobile.dataset.listenerAdded = '1';
-                    }
-                }
-
+                startBtn.disabled = false;
+                
                 //Nombre de sala completo
                 currentRoomId = `${institution}-${select.options[select.selectedIndex].text}`;
-                console.log(`Sala actual: ${currentRoomId}`);
+                console.log(`Sala actual: ${currentRoomId}`);   
+                    
             }
             console.log(`Ruta GPX cargada correctamente`);
-            const loadBtn = document.getElementById('load-gpx');
-            const loadBtnMobile = document.getElementById('load-gpx-mobile');
-            if (loadBtn) loadBtn.disabled = true;
-            if (loadBtnMobile) loadBtnMobile.disabled = true;
+            document.getElementById('load-gpx').disabled = true;
 
         } catch (error) {
             console.error('Error al cargar el GPX:', error);
@@ -199,22 +172,15 @@ function setupGPXFunctionality() {
         }
     }
 
-    // Configurar event listeners para GPX (desktop y móvil)
+    // Configurar event listeners para GPX
     const loadGpxBtn = document.getElementById('load-gpx');
-    const loadGpxBtnMobile = document.getElementById('load-gpx-mobile');
-    if (loadGpxBtn) loadGpxBtn.addEventListener('click', addGPXToMap);
-    if (loadGpxBtnMobile) loadGpxBtnMobile.addEventListener('click', addGPXToMap);
+    
+    loadGpxBtn.addEventListener('click', addGPXToMap);
+    
 
-    if (selectEl) {
-        selectEl.addEventListener('change', function() {
-            const btn = document.getElementById('load-gpx'); if (btn) btn.disabled = false;
-        });
-    }
-    if (selectMobileEl) {
-        selectMobileEl.addEventListener('change', function() {
-            const btn = document.getElementById('load-gpx-mobile'); if (btn) btn.disabled = false;
-        });
-    }
+    document.getElementById('gpxSelect').addEventListener('change', function() {
+        document.getElementById('load-gpx').disabled = false
+    });
 
 }
 
@@ -650,16 +616,14 @@ async function getRoutes(id) {
     console.log(data.route);
     
     
-    // Selet desktop y mobile
+    //Selet
     const select = document.getElementById('gpxSelect');
-    const selectMobile = document.getElementById('gpxSelect-mobile');
     // Llenar con datos de la API
     data.route.forEach(route => {
         const option = document.createElement('option');
         option.value = route.id;
         option.textContent = `${route.nombre}`;
-        if (select) select.appendChild(option.cloneNode(true));
-        if (selectMobile) selectMobile.appendChild(option.cloneNode(true));
+        select.appendChild(option);
     });
     
 }
@@ -774,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Cerrar sesion
     const logoutBtnEl = document.getElementById('logoutBtn');
-    if (logoutBtnEl) logoutBtnEl.addEventListener('click', cerrarSesion);
+    logoutBtnEl.addEventListener('click', cerrarSesion);
     
 
     // Inicializar pestañas móviles si es necesario
@@ -787,17 +751,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //Conección al servidor ^^^^^^^^^^^^^^^^^^^^
-const startBtnMain = document.getElementById('start');
-const startBtnMobileMain = document.getElementById('start-mobile');
-const startHandler = function() {
+document.getElementById("start").addEventListener("click", function(){
     if(isConnected){
-        console.log('Desconectando...');
+        console.log("Desconectando...");
         disconnectFromServer();
-    } else {
-        console.log('Conectando...');
+    }else{
+        console.log("Conectando...");
         connectToServer();
-    }
-};
-if (startBtnMain) startBtnMain.addEventListener('click', startHandler);
-if (startBtnMobileMain) startBtnMobileMain.addEventListener('click', startHandler);
+    }  
+}); 
 
