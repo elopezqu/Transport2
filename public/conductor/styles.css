@@ -386,3 +386,9 @@ input, select {
 .logout-btn:hover {
     background-color: #c0392b;
 }
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
