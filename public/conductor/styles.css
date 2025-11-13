@@ -424,30 +424,3 @@ input, select {
     background-color: #c0392b;
 }
 
-/* Mobile behaviour: show only the active tab content and hide sidebar secondary cards */
-@media (max-width: 768px) {
-    .content {
-        flex-direction: column;
-    }
-
-    /* hide all tab-content by default on mobile, JS will show the active one */
-    .tab-content { display: none; }
-
-    .tab-content.active { display: block; }
-
-    /* Keep sidebar compact: show only the users card when users tab active */
-    .sidebar { max-height: none; padding: 0.6rem; }
-
-    /* Hide routes card on small screens to keep UI simple */
-    #routes-tab { display: none; }
-
-    /* Floating logout visible only on mobile */
-    .floating-logout { display: flex; }
-    .logout-btn { display: none; }
-}
-
-/* Desktop: hide floating logout, show header logout */
-@media (min-width: 769px) {
-    .floating-logout { display: none; }
-    .logout-btn { display: inline-block; }
-}
