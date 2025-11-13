@@ -787,13 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Cerrar sesion
     const logoutBtnEl = document.getElementById('logoutBtn');
-    if (logoutBtnEl) {
-        logoutBtnEl.addEventListener('click', cerrarSesion);
-    } else {
-        console.warn('logoutBtn no encontrado en el DOM al intentar registrar listener');
-    }
-
-
+    logoutBtnEl.addEventListener('click', cerrarSesion);
 
     // Inicializar pestañas móviles si es necesario
     if (isMobileDevice()) {
