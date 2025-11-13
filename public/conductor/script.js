@@ -154,8 +154,10 @@ function setupGPXFunctionality() {
             if(isTracking && inRoute){
                 const startBtn = document.getElementById('start');
                 startBtn.disabled = false;
-                //
                 
+                //Nombre de sala completo
+                currentRoomId = currentRoomId + select.textContent;
+                console.log(`Sala actual: ${currentRoomId}`);   
                     
             }
             console.log(`Ruta GPX cargada correctamente`);
@@ -247,7 +249,7 @@ function connectToServer() {
         });
         
         // Configurar manejadores de eventos del socket
-        socket.on('connect', () => {
+        socket.on('connect', () => { 
             console.log('Conectado al servidor con ID:', socket.id);
             //debugStatus.textContent = 'Conectado al servidor';
             //debugSocketId.textContent = socket.id;
@@ -274,16 +276,16 @@ function connectToServer() {
         });
         
         socket.on('disconnect', () => {
-            console.log('Desconectado del servidor');
+            console.log('Socket desconectado del servidor');
             //debugStatus.textContent = 'Desconectado del servidor';
-            handleDisconnection();
+            //handleDisconnection();
         });
         
         socket.on('connect_error', (error) => {
             console.error('Error de conexión:', error);
             //debugStatus.textContent = `Error de conexión: ${error.message}`;
             alert(`Error al conectar con el servidor: ${error.message}`);
-            handleDisconnection();
+            //handleDisconnection();
         });
         
         // Recibir ubicación de otro usuario
@@ -373,7 +375,6 @@ function disconnectFromServer() {
     startBtn.style.backgroundColor = "#4caf50";
 
     if (socket) {
-        console.log('Desconectando del servidor...');
         //debugStatus.textContent = 'Desconectando...';
         socket.disconnect();
         socket = null;
@@ -720,6 +721,7 @@ async function getInstitution(id){
         const data = await response.json();
         //Nombre institucion
         titleInstitution.textContent = data.institution.name;
+        currentRoomId = data.institution.name;
         //Cargar rutas
         getRoutes(data.institution.id);
 
@@ -733,7 +735,6 @@ async function getInstitution(id){
 // VERIFICAR AUTENTICACIÓN AL CARGAR LA PÁGINA
 window.onload = function() {
     if (!verificarAutenticacion()) {
-        //window.location.href = `file:///C:/Users/DEDS3/OneDrive/Documentos/Tesis/Transport2/public/index.html`;
         window.location.href = `${urlBase}`;
         return;
     }
