@@ -374,8 +374,7 @@ input, select {
 
 .header-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: right;
     position: relative;
 }
 
@@ -384,7 +383,6 @@ input, select {
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
-    font-size: 1.5rem;
     font-weight: 600;
     text-align: center;
 }
@@ -392,13 +390,10 @@ input, select {
 .logout-btn {
     background-color: #e74c3c;
     color: white;
-    border: none;
     padding: 8px 16px;
-    border-radius: 4px;
     cursor: pointer;
     font-size: 0.9rem;
-    transition: background-color 0.3s ease;
-    margin-left: auto; /* Empuja el botón a la derecha */
+    width: 13%;
 }
 
 .logout-btn:hover {
