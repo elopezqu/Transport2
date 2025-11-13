@@ -155,12 +155,7 @@ function setupGPXFunctionality() {
                 const startBtn = document.getElementById('start');
                 startBtn.disabled = false;
                 //
-                //Conección al servidor ^^^^^^^^^^^^^^^^^^^^
-                if(isConnected){
-                    startBtn.addEventListener('click', disconnectFromServer);
-                }else{
-                    startBtn.addEventListener('click', connectToServer);
-                }
+                
                     
             }
             console.log(`Ruta GPX cargada correctamente`);
@@ -379,6 +374,9 @@ function handleDisconnection() {
     //debugStatus.textContent = 'Desconectado';
     //debugSocketId.textContent = 'N/A';
     //debugUsersCount.textContent = '0';
+
+    const btnStart =document.getElementById('start');
+    btnStart.textContent = "Iniciar el viaje";
 }
 
 // Desconectar del servidor
@@ -805,6 +803,15 @@ document.addEventListener('DOMContentLoaded', () => {
     //Cerrar sesion
     const logoutBtnEl = document.getElementById('logoutBtn');
     logoutBtnEl.addEventListener('click', cerrarSesion);
+
+
+    //Conección al servidor ^^^^^^^^^^^^^^^^^^^^
+    if(isConnected){
+        startBtn.addEventListener('click', disconnectFromServer);
+    }else{
+        startBtn.addEventListener('click', connectToServer);
+    }
+    
 
     // Inicializar pestañas móviles si es necesario
     if (isMobileDevice()) {
