@@ -275,8 +275,6 @@ function connectToServer() {
         socket.on('connect', () => {
             console.log('Conectado al servidor con ID:', socket.id);
 
-            
-           
 
             // pedir existencia de sala
             socket.emit('check-room', currentRoomId);

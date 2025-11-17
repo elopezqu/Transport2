@@ -141,6 +141,7 @@ class SocketHandler {
     }
 
     checkRoomExists(roomId) {
+        console.log('Se busca sala:', roomId);
         const room = this.io.sockets.adapter.rooms.get(roomId);
         console.log('Localizacion de usaurios', userLocations);
         console.log('Usuarios conectados',connectedUsers);
