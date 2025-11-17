@@ -32,6 +32,10 @@ const titleInstitution = document.getElementById("titleInstitution");
 //URL_API
 const urlBase = "https://misdominios.dev";
 
+// Colores para los diferentes usuarios
+const userColors = '#2eb613ff';
+
+
 
 function initMap() {
     map = new mapboxgl.Map({
@@ -364,6 +368,11 @@ function isRoom(){
 
 // Conectar al servidor de WebSockets
 function connectToServer() {
+
+    //Configuraciones boton start
+    const startBtn = document.getElementById('start');
+    startBtn.textContent = "Finalizar el viaje";
+    startBtn.style.backgroundColor = "#e14f42";
 
     // Url Base
     const serverFullUrl = `${urlBase}`;
