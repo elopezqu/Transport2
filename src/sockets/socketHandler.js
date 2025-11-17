@@ -1,4 +1,3 @@
-const { use } = require('react');
 const { SOCKET_EVENTS, MESSAGES } = require('../config/constants');
 
 // Almacenamiento en memoria (podrías mover esto a un modelo)
