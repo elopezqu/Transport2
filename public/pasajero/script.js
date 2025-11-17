@@ -277,10 +277,12 @@ function connectToServer() {
             socket.emit('check-room', currentRoomId);
 
             // recibir respuesta
-            socket.on('room-exists', ({ roomId, exists, connectedUsers }) => {
-            if (exists) {
+            socket.on('room-exists', ({ roomId, conductor }) => {
+            if (conductor) {
                 console.log(`La sala ${roomId} existe.`);
-                console.log("Sala" ,connectedUsers);
+                //Actualizar interfaz
+                const userDriver = document.getElementById("user-driver");
+                userDriver.textContent = `${conductor[0].username}`;
                 const colorDiv = document.querySelector('.user-color');
                 colorDiv.style.backgroundColor = '#4CAF50';
                 const textSpan = colorDiv.nextElementSibling;

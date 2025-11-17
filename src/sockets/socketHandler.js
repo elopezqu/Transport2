@@ -17,8 +17,8 @@ class SocketHandler {
 
             // Consultar sala existente
             socket.on(SOCKET_EVENTS.CHECK_ROOM, async (roomId) => {
-            const exists = await this.checkRoomExists(roomId);
-            socket.emit(SOCKET_EVENTS.ROOM_EXISTS, { roomId, exists, connectedUsers});
+            const conductor = await this.checkRoomExists(roomId);
+            socket.emit(SOCKET_EVENTS.ROOM_EXISTS, { roomId, conductor});
             });
             
             // Enviar ubicacion de pasajero a conductor
@@ -145,7 +145,14 @@ class SocketHandler {
         const room = this.io.sockets.adapter.rooms.get(roomId);
         console.log('Localizacion de usaurios', userLocations);
         console.log('Usuarios conectados',connectedUsers);
-        return !!room && room.size > 0;
+        if(room){
+            const conductor = Object.values(connectedUsers).filter(
+            conductor => conductor.roomId === roomId && conductor.userRol === 'conductor');
+            return conductor;
+        } else{
+            return null;
+        }
+        
     }
 
 }
