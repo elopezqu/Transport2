@@ -23,6 +23,11 @@ let latitud = null;
 let longitud = null;
 let exactitud = null;
 
+//Institucion
+let institucion = '';
+
+//Titulo institucion
+const titleInstitution = document.getElementById("titleInstitution");
 
 //URL_API
 const urlBase = "https://misdominios.dev";
@@ -191,6 +196,7 @@ async function getInstitution(id){
         const data = await response.json();
         //Nombre institucion
         titleInstitution.textContent = data.institution.name;
+        institution = data.institution.name;
         //Cargar rutas
         getRoutes(data.institution.id);
 
@@ -252,15 +258,12 @@ async function getRoutes(id) {
 
 // Conectar al servidor de WebSockets
 function connectToServer() {
-    const username = 'Pasajero';
-    //const serverUrl = serverUrlInput.value || 'misdominios.dev';
-    //const serverUrl = 'socket.io';
-    currentRoomId = 'Viaje';
+   
+    currentRoomId = '';
 
     // Url Base
     const serverFullUrl = `${urlBase}`;
     
-    //console.log(`Conectando a ${serverFullUrl} como ${username} (${userId})`);
     
     // Conectar con el servidor Socket.io
     try {
@@ -273,7 +276,7 @@ function connectToServer() {
             console.log('Conectado al servidor con ID:', socket.id);
 
             
-            isConnected = true;
+           
 
             // pedir existencia de sala
             socket.emit('check-room', currentRoomId);
@@ -286,6 +289,9 @@ function connectToServer() {
                 colorDiv.style.backgroundColor = '#4CAF50';
                 const textSpan = colorDiv.nextElementSibling;
                 textSpan.textContent = "Conectado";
+
+                //Conectado
+                isConnected = true;
 
                 socket.emit('join-room', {
                     roomId: currentRoomId,
@@ -474,9 +480,9 @@ function setupGPXFunctionality() {
             inRoute = true;
             
             if(isTracking && inRoute){
-                //const startBtn = document.getElementById('start');
-                //startBtn.disabled = false;
-                //startBtn.addEventListener('click', connectToServer);
+                //Nombre de sala completo
+                currentRoomId = `${institution}-${select.options[select.selectedIndex].text}`;
+                console.log(`Sala actual: ${currentRoomId}`);  
                 connectToServer();
             }
             console.log(`Ruta GPX cargada correctamente`);

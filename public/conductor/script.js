@@ -5,6 +5,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FicmllbDI5LXMiLCJhIjoiY20yMnZvYnExMDJwNzJqc
 // Elementos de la interfaz
 const mobileTabs = document.getElementById('mobile-tabs');
 const tabContents = document.querySelectorAll('.tab-content');
+const userList = document.getElementById('user-list');
 
 //Titulo institucion
 const titleInstitution = document.getElementById("titleInstitution");
@@ -211,6 +212,7 @@ function connectToServer() {
         // Configurar manejadores de eventos del socket
         socket.on('connect', () => { 
             console.log('Conectado al servidor con ID:', socket.id);
+
             
             isConnected = true;
             
@@ -297,7 +299,6 @@ function handleDisconnection() {
     removeAllOtherUserMarkers();
     
     // Actualizar lista de usuarios
-    const userList = document.getElementById('user-list');
     userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-color" style="background-color: #4269e1;"></div><span>Ningún usuario conectado</span></div></div>';
     
 }
