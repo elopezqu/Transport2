@@ -18,7 +18,7 @@ class SocketHandler {
             // Consultar sala existente
             socket.on(SOCKET_EVENTS.CHECK_ROOM, async (roomId) => {
             const exists = await this.checkRoomExists(roomId);
-            socket.emit(SOCKET_EVENTS.ROOM_EXISTS, { roomId, exists });
+            socket.emit(SOCKET_EVENTS.ROOM_EXISTS, { roomId, exists, connectedUsers});
             });
             
             // Enviar ubicacion de pasajero a conductor
