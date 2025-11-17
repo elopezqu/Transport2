@@ -160,7 +160,7 @@ function updatePosition(position) {
             timestamp: new Date().toISOString()
         };
         
-        socket.emit('location-update', locationData);
+        socket.emit('location-update', locationData, 'pasajero');
     }
 }
 
