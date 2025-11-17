@@ -77,7 +77,7 @@ class SocketHandler {
     }
     
     handleJoinRoom(socket, data) {
-        const { roomId, userId, username } = data;
+        const { roomId, userId, username, userRol } = data;
         
         if (!roomId || !userId || !username) {
             console.log(MESSAGES.INVALID_DATA, data);
@@ -85,12 +85,12 @@ class SocketHandler {
         }
 
         socket.join(roomId);
-        connectedUsers[socket.id] = { userId, username, roomId };
+        connectedUsers[socket.id] = { userId, username, roomId, userRol };
 
-        console.log(`${MESSAGES.USER_JOINED} ${username} (${userId}) se unió a la sala ${roomId}`);
+        console.log(`${MESSAGES.USER_JOINED} ${username} (${userId}) se unió a la sala ${roomId} con rol ${userRol}`);
 
         // Notificar a otros usuarios
-        socket.to(roomId).emit(SOCKET_EVENTS.USER_CONNECTED, { userId, username });
+        socket.to(roomId).emit(SOCKET_EVENTS.USER_CONNECTED, { userId, username, userRol });
         
         // Confirmar al usuario
         socket.emit(SOCKET_EVENTS.ROOM_JOINED, { roomId });

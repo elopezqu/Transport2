@@ -220,7 +220,8 @@ function connectToServer() {
             socket.emit('join-room', {
                 roomId: currentRoomId,
                 userId: userId,
-                username: nombre
+                username: nombre,
+                userRol: 'conductor'
             });
             
             // Solicitar ubicaciones existentes

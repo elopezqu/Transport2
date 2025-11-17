@@ -280,7 +280,7 @@ function connectToServer() {
             socket.on('room-exists', ({ roomId, exists, connectedUsers }) => {
             if (exists) {
                 console.log(`La sala ${roomId} existe.`);
-                console.log(`Sala ${connectedUsers}`);
+                console.log("Sala" ,connectedUsers);
                 const colorDiv = document.querySelector('.user-color');
                 colorDiv.style.backgroundColor = '#4CAF50';
                 const textSpan = colorDiv.nextElementSibling;
@@ -292,7 +292,8 @@ function connectToServer() {
                 socket.emit('join-room', {
                     roomId: currentRoomId,
                     userId: usuarioId,
-                    username: nombre
+                    username: nombre,
+                    userRol: 'pasajero'
                 });
 
             } else {
