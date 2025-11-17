@@ -225,7 +225,7 @@ function connectToServer() {
             });
             
             // Solicitar ubicaciones existentes
-            socket.emit('request-locations', currentRoomId, 'pasajero');
+            socket.emit('request-locations', currentRoomId, 'conductor');
         });
         
         socket.on('disconnect', () => {

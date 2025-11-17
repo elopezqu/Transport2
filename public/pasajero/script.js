@@ -336,6 +336,7 @@ function isRoom(){
                 colorDiv.style.backgroundColor = '#4CAF50';
                 const textSpan = colorDiv.nextElementSibling;
                 textSpan.textContent = "Conectado";
+                document.getElementById('start').disabled = false;
 
             } else {
                 console.log(`La sala ${roomId} no existe o está vacía.`);
@@ -345,6 +346,7 @@ function isRoom(){
                 colorDiv.style.backgroundColor = '#707174';
                 const textSpan = colorDiv.nextElementSibling;
                 textSpan.textContent = "Desconectado";
+                document.getElementById('start').disabled = true;
 
             }
             });
@@ -387,7 +389,7 @@ function connectToServer() {
             });
 
             // Solicitar ubicaciones existentes
-            socket.emit('request-locations', currentRoomId, 'conductor');
+            socket.emit('request-locations', currentRoomId, 'pasajero');
   
         });
             
@@ -419,7 +421,7 @@ function connectToServer() {
             // Limpiar marcadores existentes primero
             removeAllOtherUserMarkers();
             //Agregar marcador
-            locations.forEach(location => {
+            location.forEach(location => {
                 updateOtherUserPosition(location);
             });
             
