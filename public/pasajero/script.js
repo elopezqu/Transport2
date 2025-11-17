@@ -364,8 +364,6 @@ function isRoom(){
 }
 
 
-
-
 // Conectar al servidor de WebSockets
 function connectToServer() {
 
@@ -469,6 +467,30 @@ function connectToServer() {
         //debugStatus.textContent = `Error: ${error.message}`;
         alert('Error al conectar con el servidor. Verifica la URL.');
     }
+}
+
+// Manejar la desconexión
+function handleDisconnection() {
+    isConnected = false;
+    
+    // Eliminar marcadores de otros usuarios
+    removeAllOtherUserMarkers();
+    
+}
+
+// Desconectar del servidor
+function disconnectFromServer() {
+    
+    //Configuraciones boton start
+    const startBtn = document.getElementById('start');
+    startBtn.textContent = "Iniciar el viaje";
+    startBtn.style.backgroundColor = "#4caf50";
+
+    if (socket) {
+        socket.disconnect();
+        socket = null;
+    }
+    handleDisconnection();
 }
 
 // Función para agregar GPX al mapa

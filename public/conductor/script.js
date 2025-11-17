@@ -293,7 +293,7 @@ function handleDisconnection() {
     
     // Detener seguimiento si estaba activo
     if (isTracking) {
-        stopTracking();
+        //stopTracking();
     }
     
     // Eliminar marcadores de otros usuarios
@@ -322,7 +322,7 @@ function disconnectFromServer() {
 // Iniciar o detener el seguimiento de ubicación
 function toggleTracking() {
     if (isTracking) {
-        stopTracking();
+        //stopTracking();
     } else {
         startTracking();
     }
@@ -449,7 +449,7 @@ function handleError(error) {
     }
     
     alert(errorMessage);
-    stopTracking();
+    //stopTracking();
 }
 
 // Actualizar la ubicación de otro usuario en el mapa
