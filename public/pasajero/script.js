@@ -16,7 +16,7 @@ let isConnected = false;
 let currentRoomId = '';
 let usuarioId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 let socket = null;
-let nombre = 'Pasajero';
+let nombre = '';
 
 //Posicion
 let latitud = null;
@@ -25,7 +25,6 @@ let exactitud = null;
 
 
 //URL_API
-//const urlBase = "http://localhost:3000/api";
 const urlBase = "https://misdominios.dev";
 
 
@@ -152,7 +151,6 @@ function updatePosition(position) {
         };
         
         socket.emit('location-update-pasajero', locationData);
-        //debugStatus.textContent = 'Enviando ubicación...';
     }
 }
 
@@ -269,25 +267,14 @@ function connectToServer() {
         socket = io(serverFullUrl, {
             path: '/socket.io/'
         });
-
-        console.log('Socket creado:', socket);
         
         // Configurar manejadores de eventos del socket
         socket.on('connect', () => {
             console.log('Conectado al servidor con ID:', socket.id);
-            //debugStatus.textContent = 'Conectado al servidor';
-            //debugSocketId.textContent = socket.id;
+
             
             isConnected = true;
-            //connectionIndicator.classList.remove('inactive');
-            //connectionIndicator.classList.add('connected');
-            //connectionText.textContent = 'Conectado';
-            //connectBtn.disabled = true;
-            //disconnectBtn.disabled = false;
-            //usernameInput.disabled = true;
-            //serverUrlInput.disabled = true;
-            //roomIdInput.disabled = true;
-            
+
             // pedir existencia de sala
             socket.emit('check-room', currentRoomId);
 
@@ -303,13 +290,7 @@ function connectToServer() {
                 socket.emit('join-room', {
                     roomId: currentRoomId,
                     userId: usuarioId,
-                    username: username
-                });
-
-                socket.emit('send_position', {
-                    latitude: latitud,
-                    longitude: longitud,
-                    accuracy: exactitud
+                    username: nombre
                 });
 
             } else {

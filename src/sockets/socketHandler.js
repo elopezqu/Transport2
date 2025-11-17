@@ -17,7 +17,6 @@ class SocketHandler {
 
             // Consultar sala existente
             socket.on(SOCKET_EVENTS.CHECK_ROOM, async (roomId) => {
-            // usar la versión que prefieras; aquí usamos la async
             const exists = await this.checkRoomExists(roomId);
             socket.emit(SOCKET_EVENTS.ROOM_EXISTS, { roomId, exists });
             });
@@ -143,6 +142,8 @@ class SocketHandler {
 
     checkRoomExists(roomId) {
         const room = this.io.sockets.adapter.rooms.get(roomId);
+        console.log('Localizacion de usaurios', userLocations);
+        console.log('Usuarios conectados',connectedUsers);
         return !!room && room.size > 0;
     }
 

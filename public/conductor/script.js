@@ -211,8 +211,6 @@ function connectToServer() {
         // Configurar manejadores de eventos del socket
         socket.on('connect', () => { 
             console.log('Conectado al servidor con ID:', socket.id);
-            //debugStatus.textContent = 'Conectado al servidor';
-            //debugSocketId.textContent = socket.id;
             
             isConnected = true;
             
