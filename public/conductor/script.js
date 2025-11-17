@@ -174,10 +174,9 @@ function setupGPXFunctionality() {
 
     // Configurar event listeners para GPX
     const loadGpxBtn = document.getElementById('load-gpx');
-    
     loadGpxBtn.addEventListener('click', addGPXToMap);
     
-
+    // Habilitar el botón cuando se seleccione una ruta
     document.getElementById('gpxSelect').addEventListener('change', function() {
         document.getElementById('load-gpx').disabled = false
     });

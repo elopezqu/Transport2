@@ -142,7 +142,7 @@ function updatePosition(position) {
     if (isConnected && socket) {
         
         const locationData = {
-            userId: userId,
+            userId: usuarioId,
             username: nombre,
             roomId: currentRoomId,
             latitude: latitude,
@@ -201,8 +201,31 @@ async function getInstitution(id){
     }
 }
 
-//Funcion para cargar rutas
 
+//Funcion para datos de Usuario
+async function getNombreUsuario(id){
+    try{
+        const response = await fetch(`${urlBase}/api/user/id`,{
+            method : "POST",
+            headers : {
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({idUser: id}) 
+        });
+        const data = await response.json();
+        //Nombre usuario
+        nombre = data.user.name;
+        console.log("Nombre usuario :", nombre);
+
+
+    } catch (error){
+        alert('Error de conexión (Usuario)');
+    }
+}
+
+
+
+//Funcion para cargar rutas
 async function getRoutes(id) {
     
     //Api
@@ -513,25 +536,19 @@ function setupGPXFunctionality() {
 
     // Configurar event listeners para GPX
     const loadGpxBtn = document.getElementById('load-gpx');
-    //onst removeGpxBtn = document.getElementById('remove-gpx-btn');
-    //const gpxFileInput = document.getElementById('gpx-file-input');
-    
     loadGpxBtn.addEventListener('click', addGPXToMap);
     
+
+    // Habilitar el botón cuando se seleccione una ruta
+    document.getElementById('gpxSelect').addEventListener('change', function() {
+        document.getElementById('load-gpx').disabled = false
+    });
     
-    //if (removeGpxBtn) {
-    //    removeGpxBtn.addEventListener('click', removeGPXRoute);
-    //}
-    
-    //if (gpxFileInput) {
-    //    gpxFileInput.addEventListener('change', function() {
-    //        if (this.files.length > 0) {
-    //            loadGPXFromLocalFile();
-    //        }
-    //    });
-    //}
+
 
 }
+
+
 
 
 // Inicializar la aplicación cuando se cargue la página
@@ -548,6 +565,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Institucion
     getInstitution(id);
+
+    //Nombre Usuario
+    getNombreUsuario(id);
 
     //Inicio
     document.getElementById('start').disabled = true;
