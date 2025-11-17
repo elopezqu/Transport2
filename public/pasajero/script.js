@@ -418,9 +418,12 @@ function connectToServer() {
         
         // Recibir ubicación de otro usuario
         socket.on('user-location', (userData) => {
-            console.log('Ubicación recibida de otro usuario:', userData);
-            console.log(`Ubicación recibida de ${userData.username}`);
-            updateOtherUserPosition(userData);
+            if(userData.userRol !== 'conductor') return;
+            else{  
+                console.log('Ubicaciones conductor:', userData);
+                console.log(`Ubicación recibida de ${userData.username}`);
+                updateOtherUserPosition(userData);
+            }
         });
         
         // Recibir ubicaciones existentes al conectarse

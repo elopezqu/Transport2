@@ -104,20 +104,8 @@ class SocketHandler {
             timestamp: new Date().toISOString()
         };
 
-        if(userRol == 'pasajero'){
-            // Transmitir a otros en la sala
-            data = Object.values(userLocations).filter(
-            location => location.roomId === data.roomId && location.userRol === 'conductor'
-            );
-            socket.emit(SOCKET_EVENTS.USER_LOCATION, data);
-        } else {
-            data = Object.values(userLocations).filter(
-            location => location.roomId === data.roomId && location.userRol === 'pasajero'
-            );
-            socket.emit(SOCKET_EVENTS.USER_LOCATION, data);
-        }
-        
-        
+        // Emitir actualización a la sala
+        socket.to(data.roomId).emit(SOCKET_EVENTS.USER_LOCATION, data);
         console.log(`${MESSAGES.LOCATION_UPDATED} para usuario ${data.userId} en sala ${data.roomId}`);
     }
 
