@@ -111,9 +111,9 @@ class SocketHandler {
     }
 
     handleRequestLocations(socket, roomId, userRole) {
-        const roomLocations = [];
+        let roomLocations = [];
 
-        if(userRole !== 'conductor'){
+        if(userRole == 'conductor'){
             roomLocations = Object.values(userLocations).filter(
             location => location.roomId === roomId && location.userRol === 'pasajero'
             );
