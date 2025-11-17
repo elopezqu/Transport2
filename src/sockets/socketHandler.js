@@ -1,3 +1,4 @@
+const { use } = require('react');
 const { SOCKET_EVENTS, MESSAGES } = require('../config/constants');
 
 // Almacenamiento en memoria (podrías mover esto a un modelo)
@@ -31,7 +32,7 @@ class SocketHandler {
             socket.on(SOCKET_EVENTS.LOCATION_UPDATE, (data) => this.handleLocationUpdate(socket, data));
             
             // Solicitar ubicaciones existentes
-            socket.on(SOCKET_EVENTS.REQUEST_LOCATIONS, (roomId) => this.handleRequestLocations(socket, roomId));
+            socket.on(SOCKET_EVENTS.REQUEST_LOCATIONS, (roomId, userRole) => this.handleRequestLocations(socket, roomId, userRole));
             
             // Manejar desconexión
             socket.on('disconnect', (reason) => this.handleDisconnect(socket, reason));
@@ -110,10 +111,20 @@ class SocketHandler {
         console.log(`${MESSAGES.LOCATION_UPDATED} para usuario ${data.userId} en sala ${data.roomId}`);
     }
 
-    handleRequestLocations(socket, roomId) {
-        const roomLocations = Object.values(userLocations).filter(
-            location => location.roomId === roomId
-        );
+    handleRequestLocations(socket, roomId, userRole) {
+        const roomLocations = [];
+
+        if(userRole !== 'conductor'){
+            roomLocations = Object.values(userLocations).filter(
+            location => location.roomId === roomId && location.userRol === 'pasajero'
+            );
+        }
+        else {
+            roomLocations = Object.values(userLocations).filter(
+            location => location.roomId === roomId && location.userRol === 'conductor'
+            );
+        }
+        
         
         socket.emit(SOCKET_EVENTS.EXISTING_LOCATIONS, roomLocations);
         console.log(`Enviadas ${roomLocations.length} ubicaciones a usuario ${socket.id}`);

@@ -419,6 +419,7 @@ function updatePosition(position) {
             userId: userId,
             username: nombre,
             roomId: currentRoomId,
+            userRol: 'conductor',
             latitude: latitude,
             longitude: longitude,
             accuracy: accuracy,

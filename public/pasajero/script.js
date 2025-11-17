@@ -14,7 +14,7 @@ let inRoute = false;
 //Sockets
 let isConnected = false;
 let currentRoomId = '';
-let usuarioId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+let userId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 let socket = null;
 let nombre = '';
 
@@ -146,16 +146,17 @@ function updatePosition(position) {
     if (isConnected && socket) {
         
         const locationData = {
-            userId: usuarioId,
+            userId: userId,
             username: nombre,
             roomId: currentRoomId,
+            userRol: 'pasajero',
             latitude: latitude,
             longitude: longitude,
             accuracy: accuracy,
             timestamp: new Date().toISOString()
         };
         
-        socket.emit('location-update-pasajero', locationData);
+        socket.emit('location-update', locationData);
     }
 }
 
@@ -181,6 +182,56 @@ function handleError(error) {
     
     alert(errorMessage);
 }
+
+// Actualizar la ubicación de otro usuario en el mapa
+function updateOtherUserPosition(userData) {
+    // No actualizar nuestra propia ubicación
+    if (userData.userId === userId) return;
+    
+    // Si ya existe un marcador para este usuario, actualizarlo
+    if (otherUsersMarkers[userData.userId] && map) {
+        otherUsersMarkers[userData.userId].setLngLat([userData.longitude, userData.latitude]);
+        //debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
+    } else if (map) {
+        // Crear un nuevo marcador para este usuario
+        const el = document.createElement('div');
+        el.className = 'user-marker';
+        el.style.width = '16px';
+        el.style.height = '16px';
+        el.style.backgroundColor = userColors;
+        el.style.borderRadius = '50%';
+        el.style.border = '2px solid white';
+        el.style.boxShadow = '0 0 8px rgba(255, 0, 0, 0.3)';
+        
+        const marker = new mapboxgl.Marker(el)
+            .setLngLat([userData.longitude, userData.latitude])
+            .addTo(map);
+        
+        // Añadir popup con el nombre de usuario
+        marker.setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<strong>${userData.username}</strong><br>Actualizado: ${new Date().toLocaleTimeString()}`));
+        
+        otherUsersMarkers[userData.userId] = marker;
+        
+    }
+}
+
+// Eliminar marcador de usuario desconectado
+function removeOtherUserMarker(userId) {
+    if (otherUsersMarkers[userId]) {
+        otherUsersMarkers[userId].remove();
+        delete otherUsersMarkers[userId];
+    }
+}
+
+// Eliminar todos los marcadores de otros usuarios
+function removeAllOtherUserMarkers() {
+    for (const userId in otherUsersMarkers) {
+        otherUsersMarkers[userId].remove();
+    }
+    otherUsersMarkers = {};
+}
+
 
 
 async function getInstitution(id){
@@ -256,6 +307,59 @@ async function getRoutes(id) {
     
 }
 
+// Preguntar por sala y conductor
+function isRoom(){
+    // Url Base
+    const serverFullUrl = `${urlBase}`;
+    
+    // Conectar con el servidor Socket.io
+    try {
+        socket = io(serverFullUrl, {
+            path: '/socket.io/'
+        });
+        
+        // Configurar manejadores de eventos del socket
+        socket.on('connect', () => {
+            
+            // Pedir existencia de sala
+            socket.emit('check-room', currentRoomId);
+
+            // Recibir respuesta
+            socket.on('room-exists', ({ roomId, conductor }) => {
+            console.log(`Respuesta de existencia de sala para ${roomId}:`, conductor);
+            if (conductor) {
+                console.log(`La sala ${roomId} existe.`);
+                //Actualizar interfaz
+                const userDriver = document.getElementById("user-driver");
+                userDriver.textContent = `${conductor[0].username}`;
+                const colorDiv = document.querySelector('.user-color');
+                colorDiv.style.backgroundColor = '#4CAF50';
+                const textSpan = colorDiv.nextElementSibling;
+                textSpan.textContent = "Conectado";
+
+            } else {
+                console.log(`La sala ${roomId} no existe o está vacía.`);
+                const userDriver = document.getElementById("user-driver");
+                userDriver.textContent = `No asignado`;
+                const colorDiv = document.querySelector('.user-color');
+                colorDiv.style.backgroundColor = '#707174';
+                const textSpan = colorDiv.nextElementSibling;
+                textSpan.textContent = "Desconectado";
+
+            }
+            });
+            
+            
+        });
+    } catch (error) {
+        console.error('Error al conectar con el servidor:', error);
+        alert('Error al conectar con el servidor. Verifica la URL.');
+    }
+}
+
+
+
+
 // Conectar al servidor de WebSockets
 function connectToServer() {
 
@@ -272,39 +376,21 @@ function connectToServer() {
         socket.on('connect', () => {
             console.log('Conectado al servidor con ID:', socket.id);
 
+            //Conectado
+            isConnected = true;
 
-            // pedir existencia de sala
-            socket.emit('check-room', currentRoomId);
-
-            // recibir respuesta
-            socket.on('room-exists', ({ roomId, conductor }) => {
-            if (conductor) {
-                console.log(`La sala ${roomId} existe.`);
-                //Actualizar interfaz
-                const userDriver = document.getElementById("user-driver");
-                userDriver.textContent = `${conductor[0].username}`;
-                const colorDiv = document.querySelector('.user-color');
-                colorDiv.style.backgroundColor = '#4CAF50';
-                const textSpan = colorDiv.nextElementSibling;
-                textSpan.textContent = "Conectado";
-
-                //Conectado
-                isConnected = true;
-
-                socket.emit('join-room', {
-                    roomId: currentRoomId,
-                    userId: usuarioId,
-                    username: nombre,
-                    userRol: 'pasajero'
-                });
-
-            } else {
-                console.log(`La sala ${roomId} no existe o está vacía.`);
-            }
+            socket.emit('join-room', {
+                roomId: currentRoomId,
+                userId: userId,
+                username: nombre,
+                userRol: 'pasajero'
             });
-            
-            
+
+            // Solicitar ubicaciones existentes
+            socket.emit('request-locations', currentRoomId, 'conductor');
+  
         });
+            
         
         socket.on('disconnect', () => {
             console.log('Desconectado del servidor');
@@ -323,56 +409,20 @@ function connectToServer() {
         socket.on('user-location', (userData) => {
             console.log('Ubicación recibida de otro usuario:', userData);
             console.log(`Ubicación recibida de ${userData.username}`);
-            // No actualizar nuestra propia ubicación
-            if (userData.userId === usuarioId) return;
-            
-            // Si ya existe un marcador para este usuario, actualizarlo
-            if (otherUsersMarkers[userData.userId] && map) {
-                otherUsersMarkers[userData.userId].setLngLat([userData.longitude, userData.latitude]);
-                //debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
-            } else if (map) {
-                // Crear un nuevo marcador para este usuario
-                
-                const el = document.createElement('div');
-                el.className = 'user-marker';
-                el.style.width = '16px';
-                el.style.height = '16px';
-                el.style.backgroundColor = '#d62912ff';
-                el.style.borderRadius = '50%';
-                el.style.border = '2px solid white';
-                el.style.boxShadow = '0 0 8px rgba(0, 0, 0, 0.3)';
-                
-                const marker = new mapboxgl.Marker(el)
-                    .setLngLat([userData.longitude, userData.latitude])
-                    .addTo(map);
-                
-                // Añadir popup con el nombre de usuario
-                marker.setPopup(new mapboxgl.Popup({ offset: 25 })
-                    .setHTML(`<strong>${userData.username}</strong><br>Actualizado: ${new Date().toLocaleTimeString()}`));
-                
-                otherUsersMarkers[userData.userId] = marker;
-                
-                // Actualizar la lista de usuarios
-                //updateUserList(userData, color, 'add');
-                
-                //debugStatus.textContent = `Nuevo usuario: ${userData.username}`;
-                //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
-            }
+            updateOtherUserPosition(userData);
         });
         
         // Recibir ubicaciones existentes al conectarse
-        socket.on('existing-locations', (locations) => {
-            console.log('Ubicaciones existentes recibidas:', locations);
-            //debugStatus.textContent = `Recibidas ${locations.length} ubicaciones existentes`;
+        socket.on('existing-locations', (location) => {
+            console.log('Ubicaciones conductor:', location);
             
             // Limpiar marcadores existentes primero
-            //removeAllOtherUserMarkers();
-            
+            removeAllOtherUserMarkers();
+            //Agregar marcador
             locations.forEach(location => {
-                //updateOtherUserPosition(location);
+                updateOtherUserPosition(location);
             });
             
-            //debugUsersCount.textContent = Object.keys(otherUsersMarkers).length;
         });
         
         // Usuario conectado
@@ -482,7 +532,7 @@ function setupGPXFunctionality() {
                 //Nombre de sala completo
                 currentRoomId = `${institution}-${select.options[select.selectedIndex].text}`;
                 console.log(`Sala actual: ${currentRoomId}`);  
-                connectToServer();
+                isRoom();
             }
             console.log(`Ruta GPX cargada correctamente`);
             document.getElementById('load-gpx').disabled = true;
@@ -536,7 +586,6 @@ function setupGPXFunctionality() {
 
 
 
-
 // Inicializar la aplicación cuando se cargue la página
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -558,5 +607,15 @@ document.addEventListener('DOMContentLoaded', () => {
     //Inicio
     document.getElementById('start').disabled = true;
     
-    
 });
+
+//Conección al servidor ^^^^^^^^^^^^^^^^^^^^
+document.getElementById("start").addEventListener("click", function(){
+    if(isConnected){
+        console.log("Desconectando...");
+        disconnectFromServer();
+    }else{
+        console.log("Conectando...");
+        connectToServer();
+    }  
+}); 
