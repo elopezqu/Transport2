@@ -190,7 +190,7 @@ function updatePosition(position) {
     if (isConnected && socket) {
         
         const locationData = {
-            userId: userId,
+            userId: id,
             username: nombre,
             roomId: currentRoomId,
             userRol: 'pasajero',
@@ -446,7 +446,7 @@ function connectToServer() {
 
             socket.emit('join-room', {
                 roomId: currentRoomId,
-                userId: userId,
+                userId: id,
                 username: nombre,
                 userRol: 'pasajero'
             });

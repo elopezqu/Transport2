@@ -246,7 +246,7 @@ function connectToServer() {
             // Unirse a la sala
             socket.emit('join-room', {
                 roomId: currentRoomId,
-                userId: userId,
+                userId: id,
                 username: nombre,
                 userRol: 'conductor'
             });
@@ -481,7 +481,7 @@ function updatePosition(position) {
         //const username = 'UsuarioAnónimo';
         
         const locationData = {
-            userId: userId,
+            userId: id,
             username: nombre,
             roomId: currentRoomId,
             userRol: 'conductor',
