@@ -399,7 +399,7 @@ function updatePosition(position) {
         el.className = 'user-marker';
         el.style.width = '20px';
         el.style.height = '20px';
-        el.style.backgroundColor = '#e15442ff';
+        el.style.backgroundColor = '#dd5823ff';
         el.style.borderRadius = '50%';
         el.style.border = '3px solid white';
         el.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
@@ -409,7 +409,7 @@ function updatePosition(position) {
             .addTo(map);
         
         userMarker.setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<strong>Precision(m)</strong>: ${accuracy}`));
+            .setHTML(`<strong>Precision(m)</strong><br>: ${accuracy}`));
         
     } else if (userMarker) {
         userMarker.setLngLat([longitude, latitude]);
