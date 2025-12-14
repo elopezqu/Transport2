@@ -716,6 +716,10 @@ document.addEventListener('DOMContentLoaded', () => {
     //Inicio
     document.getElementById('start').disabled = true;
     
+    //Cerrar sesion
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    logoutBtnEl.addEventListener('click', cerrarSesion);
+    
 });
 
 //Conección al servidor ^^^^^^^^^^^^^^^^^^^^
@@ -728,3 +732,42 @@ document.getElementById("start").addEventListener("click", function(){
         connectToServer();
     }  
 }); 
+
+// VERIFICAR AUTENTICACIÓN AL CARGAR LA PÁGINA
+window.onload = function() {
+    if (!verificarAutenticacion()) {
+        window.location.href = `${urlBase}`;
+        return;
+    }
+    
+};
+
+// Función para verificar si está logueado
+function verificarAutenticacion() {
+    const logueado = getCookie('usuarioLogueado');
+    return logueado === 'true';
+}
+
+// Función para obtener cookies
+function getCookie(nombre) {
+    const nombreEQ = nombre + "=";
+    const cookies = document.cookie.split(';');
+    
+    for(let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1, cookie.length);
+        }
+        if (cookie.indexOf(nombreEQ) === 0) {
+            return cookie.substring(nombreEQ.length, cookie.length);
+        }
+    }
+    return null;
+}
+
+// Función para cerrar sesión
+function cerrarSesion() {
+    // Eliminar cookies estableciendo fecha pasada
+    document.cookie = "usuarioLogueado=false; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = `${urlBase}`;
+}
