@@ -13,6 +13,10 @@ let isTracking = false;
 
 //Ruta cargada
 let inRoute = false;
+//Socket y variables de geolocalización
+let watchId = null;
+let updateTimerId = null;
+let lastGeoPosition = null;
 
 //Sockets
 let isConnected = false;
@@ -104,19 +108,27 @@ function startTracking() {
         timeout: 60000            // más tolerancia para obtener una lectura GPS precisa
     };
     
-    // Obtener ubicación actual
+    // Obtener ubicación actual (solo actualizar cache)
     navigator.geolocation.getCurrentPosition(
-        position => updatePosition(position),
+        position => { lastGeoPosition = position; updatePosition(position); },
         error => handleError(error),
         options
     );
     
-    // Observar cambios de ubicación
+    // Observar cambios de ubicación: solo actualizar cache, no llamar updatePosition directamente
     watchId = navigator.geolocation.watchPosition(
-        position => updatePosition(position),
+        position => { lastGeoPosition = position; },
         error => handleError(error),
         options
     );
+
+    // Llamar updatePosition cada segundo usando el último valor cacheado
+    if (updateTimerId) clearInterval(updateTimerId);
+    updateTimerId = setInterval(() => {
+        if (lastGeoPosition) {
+            updatePosition(lastGeoPosition);
+        }
+    }, 1000);
 }
 
 // Actualizar la posición en el mapa
