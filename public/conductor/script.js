@@ -2,6 +2,10 @@
 // Reemplaza esto con tu token de Mapbox
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FicmllbDI5LXMiLCJhIjoiY20yMnZvYnExMDJwNzJqcTV3d3J3cmUxdSJ9.fA3z9inzGxKvS2GC_rH20g';
 
+
+// Id usuario
+let id = '';
+
 // Elementos de la interfaz
 const mobileTabs = document.getElementById('mobile-tabs');
 const tabContents = document.querySelectorAll('.tab-content');
@@ -12,6 +16,27 @@ const titleInstitution = document.getElementById("titleInstitution");
 
 //URL_API
 const urlBase = "https://misdominios.dev";
+
+// Función para guardar métricas de rendimiento en base de datos
+async function savePerformanceMetrics(metricsData) {
+    try {
+        const response = await fetch(`${urlBase}/api/performance/metrics`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(metricsData)
+        });
+        
+        if (response.ok) {
+            console.log('[DB] Métricas guardadas exitosamente');
+        } else {
+            console.error('[DB] Error al guardar métricas:', await response.text());
+        }
+    } catch (error) {
+        console.error('[DB] Error al guardar métricas:', error);
+    }
+}
 
 //Institucion actual
 let institution = '';
@@ -34,7 +59,7 @@ let currentRoomId = '';
 let nombre = '';
 
 // Colores para los diferentes usuarios
-const userColors = '#3f41b1ff';
+const userColors = '#5658c2ff';
 
 // Inicializar el mapa
 function initMap() {
@@ -249,6 +274,13 @@ function connectToServer() {
             if (networkLatency !== null) {
                 console.log(`[LATENCIA RED] ${networkLatency}ms desde ${data.username}`);
                 data.networkLatency = networkLatency; // Agregar al objeto para mostrarlo en el popup
+                
+                // Guardar métricas en base de datos
+                savePerformanceMetrics({
+                    userId: id,
+                    latencia: data.accuracy,
+                    precision: networkLatency
+                });
             }
             
             updateOtherUserPosition(data);
@@ -721,7 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Parametro
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
+    id = urlParams.get('id');
     console.log("parametro :", id);
 
     //Institucion

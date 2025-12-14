@@ -1,6 +1,9 @@
 //Token MapBox
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2FicmllbDI5LXMiLCJhIjoiY20yMnZvYnExMDJwNzJqcTV3d3J3cmUxdSJ9.fA3z9inzGxKvS2GC_rH20g';
 
+//Id usuario
+let id = '';
+
 //Variables
 let userMarker;
 let otherUsersMarkers = {};
@@ -31,6 +34,27 @@ const titleInstitution = document.getElementById("titleInstitution");
 
 //URL_API
 const urlBase = "https://misdominios.dev";
+
+// Función para guardar métricas de rendimiento en base de datos
+async function savePerformanceMetrics(metricsData) {
+    try {
+        const response = await fetch(`${urlBase}/api/performance/metrics`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(metricsData)
+        });
+        
+        if (response.ok) {
+            console.log('[DB] Métricas guardadas exitosamente');
+        } else {
+            console.error('[DB] Error al guardar métricas:', await response.text());
+        }
+    } catch (error) {
+        console.error('[DB] Error al guardar métricas:', error);
+    }
+}
 
 // Colores para los diferentes usuarios
 const userColors = '#b61e13ff';
@@ -142,6 +166,10 @@ function updatePosition(position) {
         userMarker = new mapboxgl.Marker(el)
             .setLngLat([longitude, latitude])
             .addTo(map);
+
+        userMarker.setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<strong>Precisión</strong><br>${accuracy.toFixed(1)} m`));
+        
     } else if (userMarker) {
         userMarker.setLngLat([longitude, latitude]);
     }
@@ -442,6 +470,13 @@ function connectToServer() {
                 if (networkLatency !== null) {
                     console.log(`[LATENCIA RED] ${networkLatency}ms desde ${userData.username}`);
                     userData.networkLatency = networkLatency; // Agregar al objeto para mostrarlo en el popup
+                    
+                    // Guardar métricas en base de datos
+                savePerformanceMetrics({
+                    userId: id,
+                    latencia: userData.accuracy,
+                    precision: networkLatency
+                });
                 }
                 
                 updateOtherUserPosition(userData);
@@ -655,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Parametro
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
+    id = urlParams.get('id');
     console.log("parametro :", id);
 
     //Institucion

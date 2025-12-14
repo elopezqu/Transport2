@@ -9,6 +9,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const institutionRoutes = require("./src/routes/institutionRoutes");
 const routeRoutes = require("./src/routes/routeRoutes");
 const userRoutes = require('./src/routes/userRoutes');
+const performanceRoutes = require('./src/routes/performanceRoutes');
 //const locationRoutes = require('./src/routes/locationRoutes');
 
 // Importación del manejador de sockets
@@ -30,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/institution',institutionRoutes);
 app.use('/api/route',routeRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/performance', performanceRoutes);
 //app.use('/api/locations', locationRoutes);
 
 // Configuración de Socket.io
