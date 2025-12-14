@@ -399,7 +399,7 @@ function updatePosition(position) {
         el.className = 'user-marker';
         el.style.width = '20px';
         el.style.height = '20px';
-        el.style.backgroundColor = '#4269e1';
+        el.style.backgroundColor = '#e15442ff';
         el.style.borderRadius = '50%';
         el.style.border = '3px solid white';
         el.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
