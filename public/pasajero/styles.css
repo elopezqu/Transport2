@@ -375,3 +375,8 @@ input, select {
     }
     
 }
+
+/* Texto para desktop */
+.logout-btn::before {
+  content: attr(data-desktop);
+}
