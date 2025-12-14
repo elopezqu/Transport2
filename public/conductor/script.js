@@ -394,6 +394,7 @@ function updatePosition(position) {
     
     // Actualizar o crear el marcador
     if (!userMarker && map) {
+        console.log('Creando marcador de usuario');
         // Crear un elemento personalizado para el marcador
         const el = document.createElement('div');
         el.className = 'user-marker';
@@ -412,6 +413,7 @@ function updatePosition(position) {
             .setHTML(`<strong>Precisión</strong><br>${accuracy.toFixed(1)} m`));
         
     } else if (userMarker) {
+        console.log('Actualizando marcador de usuario');
         userMarker.setLngLat([longitude, latitude]);
         
         // actualizar color si cambiaste la constante selfColor
