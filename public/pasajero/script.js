@@ -475,7 +475,7 @@ function connectToServer() {
             if(userData.userRol !== 'conductor') return;
             else{  
                 const receiveTime = Date.now();
-                const networkLatency = userData.sendTime ? receiveTime - userData.sendTime : null;
+                const networkLatency = userData.sendTime ? Math.abs(receiveTime - userData.sendTime) : null;
                 
                 console.log('Ubicaciones conductor:', userData);
                 console.log(`Ubicación recibida de ${userData.username}`);
@@ -487,7 +487,7 @@ function connectToServer() {
                     console.log("antes de guardar :", userData.accuracy);
                     // Guardar métricas en base de datos
                     savePerformanceMetrics({
-                        userId: userData.userId,
+                        userId: id,  // Mi propio ID (quien recibe y mide)
                         latencia: networkLatency,
                         precision: userData.accuracy.toFixed(1)
                     });

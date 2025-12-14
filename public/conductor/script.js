@@ -270,7 +270,7 @@ function connectToServer() {
         // Recibir ubicación de otro usuario
         socket.on('user-location', (data) => {
             const receiveTime = Date.now();
-            const networkLatency = data.sendTime ? receiveTime - data.sendTime : null;
+            const networkLatency = data.sendTime ? Math.abs(receiveTime - data.sendTime) : null;
             
             console.log('Ubicación recibida de otro usuario:', data);
             if (networkLatency !== null) {
@@ -280,7 +280,7 @@ function connectToServer() {
                 // Guardar métricas en base de datos
                 console.log("antes de guardar ms:", networkLatency);
                 savePerformanceMetrics({
-                    userId: data.userId,
+                    userId: id,  // Mi propio ID (quien recibe y mide)
                     latencia: networkLatency,
                     precision: data.accuracy.toFixed(1),
                 });
@@ -600,13 +600,7 @@ function updateUserList(userData, color, action) {
         userItem.className = 'user-item';
         userItem.id = `user-${userData.userId}`;
         
-        userItem.innerHTML = `
-            <div class="user-info">
-                <div class="user-color" style="background-color: ${color};"></div>
-                <span>${userData.username}</span>
-            </div>
-            <div class="user-status">Conectado</div>
-        `;
+        userItem.innerHTML = `<div class="user-info"><div class="user-color" style="background-color: ${color};"></div><span>${userData.username}</span></div><div class="user-status">Conectado</div>`;
         
         // Si es la lista vacía por defecto, reemplazarla
         if (userList.innerHTML.includes('Ningún usuario conectado')) {
