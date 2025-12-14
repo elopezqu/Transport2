@@ -521,7 +521,7 @@ function handleError(error) {
 // Actualizar la ubicación de otro usuario en el mapa
 function updateOtherUserPosition(userData) {
     // No actualizar nuestra propia ubicación
-    if (userData.userId === userId) return;
+    if (userData.userId === id) return;
     
     // Construir HTML del popup con latencia si está disponible
     let popupHTML = `<strong>${userData.username}</strong>`;
