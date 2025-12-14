@@ -374,14 +374,8 @@ function stopTracking() {
 // Actualizar la posición en el mapa
 function updatePosition(position) {
     const { latitude, longitude, accuracy } = position.coords;
-    console.log('RAW pos', latitude, longitude, 'acc (m):', accuracy);
+    console.log('pos', latitude, longitude, 'acc (m):', accuracy);
     
-    
-    const MAX_ACCEPTED_ACCURACY = 6000; // metros, ajusta según tu caso
-    if (accuracy > MAX_ACCEPTED_ACCURACY) {
-        // opcional: seguir esperando mejores lecturas sin hacer flyTo ni emitir al servidor
-        return;
-    }
     
     // Centrar el mapa en la nueva ubicación
     if (map) {
