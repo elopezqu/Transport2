@@ -34,7 +34,7 @@ let currentRoomId = '';
 let nombre = '';
 
 // Colores para los diferentes usuarios
-const userColors = '#202279ff';
+const userColors = '#3f41b1ff';
 
 // Inicializar el mapa
 function initMap() {
@@ -415,7 +415,6 @@ function updatePosition(position) {
             .setHTML(`<strong>Precisión</strong><br>${accuracy.toFixed(1)} m`));
         
     } else if (userMarker) {
-        console.log('Actualizando marcador de usuario');
         userMarker.setLngLat([longitude, latitude]);
         
         // actualizar color si cambiaste la constante selfColor
