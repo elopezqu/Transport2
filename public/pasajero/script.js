@@ -33,7 +33,7 @@ const titleInstitution = document.getElementById("titleInstitution");
 const urlBase = "https://misdominios.dev";
 
 // Colores para los diferentes usuarios
-const userColors = '#2eb613ff';
+const userColors = '#b61e13ff';
 
 
 
@@ -162,7 +162,6 @@ function updatePosition(position) {
         };
         
         socket.emit('location-update', locationData, 'pasajero');
-        console.log(`[ENVÍO] Ubicación enviada con timestamp: ${locationData.sendTime}`);
     }
 }
 

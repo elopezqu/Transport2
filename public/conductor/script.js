@@ -34,7 +34,7 @@ let currentRoomId = '';
 let nombre = '';
 
 // Colores para los diferentes usuarios
-const userColors = '#2eb613ff';
+const userColors = '#202279ff';
 
 // Inicializar el mapa
 function initMap() {
@@ -394,12 +394,9 @@ function updatePosition(position) {
         });
     }
     
-    //
-    console.log('Actualizando marcador de usuario en el mapa');
 
     // Actualizar o crear el marcador
     if (!userMarker && map) {
-        console.log('Creando marcador de usuario');
         // Crear un elemento personalizado para el marcador
         const el = document.createElement('div');
         el.className = 'user-marker';
@@ -450,7 +447,6 @@ function updatePosition(position) {
         };
         
         socket.emit('location-update', locationData);
-        console.log(`[ENVÍO] Ubicación enviada con timestamp: ${locationData.sendTime}`);
     }
 }
 
