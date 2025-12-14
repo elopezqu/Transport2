@@ -281,8 +281,8 @@ function connectToServer() {
                 console.log("antes de guardar :", data.accuracy);
                 savePerformanceMetrics({
                     userId: id,
-                    latencia: data.accuracy.toFixed(1),
-                    precision: networkLatency
+                    latencia: networkLatency,
+                    precision: data.accuracy.toFixed(1),
                 });
             }
             

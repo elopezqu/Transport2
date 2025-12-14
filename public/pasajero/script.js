@@ -475,8 +475,8 @@ function connectToServer() {
                     // Guardar métricas en base de datos
                     savePerformanceMetrics({
                         userId: id,
-                        latencia: userData.accuracy.toFixed(1),
-                        precision: networkLatency
+                        latencia: networkLatency,
+                        precision: userData.accuracy.toFixed(1)
                     });
                 }
                 
