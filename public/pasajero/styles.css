@@ -69,9 +69,12 @@ header p {
     flex-direction: column;
     gap: 1.2rem;
     order: 2;
-    max-height: 50vh;
+    max-height: 40vh;
     overflow-y: auto;
 }
+
+/* Tab content (map / users) */
+.tab-content { display: block; }
 
 .card {
     background-color: #eeeeee;
@@ -193,11 +196,6 @@ button:disabled {
     align-items: center;
     gap: 0.4rem;
 }
-.driver {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
 
 .user-color {
     width: 14px;
@@ -237,7 +235,6 @@ input, select {
     display: flex;
     border-bottom: 1px solid #ddd;
     margin-bottom: 1rem;
-    display: none;
 }
 
 .mobile-tab {
@@ -339,6 +336,28 @@ input, select {
         display: none;
     }
 
+/* Botón flotante para logout */
+.floating-logout {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.floating-logout:hover { background: #c0392b; }
+
 }
 
 /* Mejoras para móviles muy pequeños */
@@ -376,7 +395,56 @@ input, select {
     
 }
 
+
+.header-content {
+    display: flex;
+    justify-content: right;
+    position: relative;
+}
+
+.centered-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-weight: 600;
+    text-align: center;
+}
+
+.logout-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 10%;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+
 /* Texto para desktop */
 .logout-btn::before {
   content: attr(data-desktop);
+}
+
+/* En móviles cambia el texto */
+@media (max-width: 768px) {
+    .logout-btn::before {
+        content: attr(data-mobile);
+    }
+    .logout-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 8px 1px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .header-content {
+        display: grid;
+        justify-content: inherit;
+        position: relative;
+    }
 }
