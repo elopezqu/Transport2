@@ -280,7 +280,7 @@ function connectToServer() {
                 // Guardar métricas en base de datos
                 console.log("antes de guardar ms:", networkLatency);
                 savePerformanceMetrics({
-                    userId: id,
+                    userId: data.userId,
                     latencia: networkLatency,
                     precision: data.accuracy.toFixed(1),
                 });

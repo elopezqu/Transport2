@@ -480,13 +480,14 @@ function connectToServer() {
                 console.log('Ubicaciones conductor:', userData);
                 console.log(`Ubicación recibida de ${userData.username}`);
                 if (networkLatency !== null) {
+                    console.log(`[hora de recepción] ${receiveTime} -  ${userData.sendTime} [hora de envío] = ${networkLatency}ms`);
                     console.log(`[LATENCIA RED] ${networkLatency}ms desde ${userData.username}`);
                     userData.networkLatency = networkLatency; // Agregar al objeto para mostrarlo en el popup
                     
                     console.log("antes de guardar :", userData.accuracy);
                     // Guardar métricas en base de datos
                     savePerformanceMetrics({
-                        userId: id,
+                        userId: userData.userId,
                         latencia: networkLatency,
                         precision: userData.accuracy.toFixed(1)
                     });
