@@ -210,6 +210,9 @@
                             console.log('redifirgir admin')
                         }
                         else {
+                            // Crear cookie que expira en 1 día
+                            setCookie('usuarioLogueado', 'true', 1);
+                            console.log('Cookies creadas:', document.cookie);
                             window.location.href = './pasajero/pasajero.html?id='+result.user.id;
                         }
                     }
