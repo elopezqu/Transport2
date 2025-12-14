@@ -157,10 +157,12 @@ function updatePosition(position) {
             latitude: latitude,
             longitude: longitude,
             accuracy: accuracy,
+            sendTime: Date.now(), // Timestamp en milisegundos para calcular latencia
             timestamp: new Date().toISOString()
         };
         
         socket.emit('location-update', locationData, 'pasajero');
+        console.log(`[ENVÍO] Ubicación enviada con timestamp: ${locationData.sendTime}`);
     }
 }
 
@@ -192,9 +194,24 @@ function updateOtherUserPosition(userData) {
     // No actualizar nuestra propia ubicación
     if (userData.userId === userId) return;
     
+    // Construir HTML del popup con latencia si está disponible
+    let popupHTML = `<strong>${userData.username}</strong>`;
+    if (userData.networkLatency !== undefined) {
+        popupHTML += `<br><strong>Latencia de red:</strong> ${userData.networkLatency}ms`;
+    }
+    if (userData.accuracy !== undefined) {
+        popupHTML += `<br><strong>Precisión:</strong> ${userData.accuracy.toFixed(1)}m`;
+    }
+    popupHTML += `<br>Actualizado: ${new Date().toLocaleTimeString()}`;
+    
     // Si ya existe un marcador para este usuario, actualizarlo
     if (otherUsersMarkers[userData.userId] && map) {
         otherUsersMarkers[userData.userId].setLngLat([userData.longitude, userData.latitude]);
+        
+        // Actualizar el popup con la nueva información
+        if (otherUsersMarkers[userData.userId].getPopup()) {
+            otherUsersMarkers[userData.userId].getPopup().setHTML(popupHTML);
+        }
         //debugStatus.textContent = `Actualizando ubicación de ${userData.username}`;
     } else if (map) {
         // Crear un nuevo marcador para este usuario
@@ -211,9 +228,9 @@ function updateOtherUserPosition(userData) {
             .setLngLat([userData.longitude, userData.latitude])
             .addTo(map);
         
-        // Añadir popup con el nombre de usuario
+        // Añadir popup con el nombre de usuario y latencia
         marker.setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<strong>${userData.username}</strong><br>Actualizado: ${new Date().toLocaleTimeString()}`));
+            .setHTML(popupHTML));
         
         otherUsersMarkers[userData.userId] = marker;
         
@@ -418,8 +435,16 @@ function connectToServer() {
         socket.on('user-location', (userData) => {
             if(userData.userRol !== 'conductor') return;
             else{  
+                const receiveTime = Date.now();
+                const networkLatency = userData.sendTime ? receiveTime - userData.sendTime : null;
+                
                 console.log('Ubicaciones conductor:', userData);
                 console.log(`Ubicación recibida de ${userData.username}`);
+                if (networkLatency !== null) {
+                    console.log(`[LATENCIA RED] ${networkLatency}ms desde ${userData.username}`);
+                    userData.networkLatency = networkLatency; // Agregar al objeto para mostrarlo en el popup
+                }
+                
                 updateOtherUserPosition(userData);
             }
         });
