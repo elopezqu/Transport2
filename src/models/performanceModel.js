@@ -10,7 +10,7 @@ class PerformanceModel {
         } = metricsData;
         
         const result = await pool.query(
-            `INSERT INTO metricas (usuario, latencia, precision) VALUES ($1, $2, $3)`,
+            `INSERT INTO metricas (usuario, latencia, precision, tiempo) VALUES ($1, $2, $3, CURRENT_TIME)`,
             [userId, latencia, precision]
         );
         return result.rows[0];
