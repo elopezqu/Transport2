@@ -276,6 +276,7 @@ function connectToServer() {
                 data.networkLatency = networkLatency; // Agregar al objeto para mostrarlo en el popup
                 
                 // Guardar métricas en base de datos
+                console.log("antes de guardar :", data.accuracy);
                 savePerformanceMetrics({
                     userId: id,
                     latencia: data.accuracy,
