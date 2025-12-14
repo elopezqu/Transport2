@@ -5,13 +5,13 @@ class PerformanceModel {
     async savePerformanceMetrics(metricsData) {
         const { 
             userId, 
-            latitud, 
+            latecia, 
             precision
         } = metricsData;
         
         const result = await pool.query(
             `INSERT INTO metricas (usuario, latencia, precision) VALUES ($1, $2, $3)`,
-            [userId, latitud, precision]
+            [userId, latecia, precision]
         );
         return result.rows[0];
     }
