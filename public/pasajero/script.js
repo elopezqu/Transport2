@@ -486,11 +486,11 @@ function connectToServer() {
                     
                     console.log("antes de guardar :", userData.accuracy);
                     // Guardar métricas en base de datos
-                    savePerformanceMetrics({
-                        userId: id,  // Mi propio ID (quien recibe y mide)
-                        latencia: networkLatency,
-                        precision: userData.accuracy.toFixed(1)
-                    });
+                    //savePerformanceMetrics({
+                    //    userId: id,  // Mi propio ID (quien recibe y mide)
+                    //    latencia: networkLatency,
+                    //    precision: userData.accuracy.toFixed(1)
+                    //});
                 }
                 
                 updateOtherUserPosition(userData);
