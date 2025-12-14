@@ -397,8 +397,8 @@ function updatePosition(position) {
         // Crear un elemento personalizado para el marcador
         const el = document.createElement('div');
         el.className = 'user-marker';
-        el.style.width = '5px';
-        el.style.height = '5px';
+        el.style.width = '20px';
+        el.style.height = '20px';
         el.style.backgroundColor = '#dd5823ff';
         el.style.borderRadius = '50%';
         el.style.border = '3px solid white';
@@ -413,6 +413,13 @@ function updatePosition(position) {
         
     } else if (userMarker) {
         userMarker.setLngLat([longitude, latitude]);
+        
+        // actualizar color si cambiaste la constante selfColor
+        const el = userMarker.getElement();
+        if (el) {
+            el.style.backgroundColor = '#dd5823ff';
+        }
+        
         // Actualizar popup con la última precisión reportada
         if (userMarker.getPopup()) {
             userMarker.getPopup().setHTML(`<strong>Precisión</strong><br>${accuracy.toFixed(1)} m`);
