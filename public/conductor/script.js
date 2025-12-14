@@ -409,10 +409,14 @@ function updatePosition(position) {
             .addTo(map);
         
         userMarker.setPopup(new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<strong>Precision(m)</strong><br>: ${accuracy}`));
+            .setHTML(`<strong>Precisión</strong><br>${accuracy.toFixed(1)} m`));
         
     } else if (userMarker) {
         userMarker.setLngLat([longitude, latitude]);
+        // Actualizar popup con la última precisión reportada
+        if (userMarker.getPopup()) {
+            userMarker.getPopup().setHTML(`<strong>Precisión</strong><br>${accuracy.toFixed(1)} m`);
+        }
     }
     
     // Enviar la ubicación al servidor si está conectado
