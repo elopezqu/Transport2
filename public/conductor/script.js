@@ -392,6 +392,9 @@ function updatePosition(position) {
         });
     }
     
+    //
+    console.log('Actualizando marcador de usuario en el mapa');
+
     // Actualizar o crear el marcador
     if (!userMarker && map) {
         console.log('Creando marcador de usuario');
