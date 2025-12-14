@@ -18,7 +18,7 @@ let institution = '';
 
 // Variables para el mapa, seguimiento y sockets
 let map;
-let = userMarker;
+let userMarker;
 let otherUsersMarkers = {};
 let watchId = null;
 // ubicacion disponible
