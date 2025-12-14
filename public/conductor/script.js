@@ -407,6 +407,10 @@ function updatePosition(position) {
         userMarker = new mapboxgl.Marker(el)
             .setLngLat([longitude, latitude])
             .addTo(map);
+        
+        userMarker.setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<strong>Precision(m)</strong>: ${accuracy}`));
+        
     } else if (userMarker) {
         userMarker.setLngLat([longitude, latitude]);
     }
