@@ -18,7 +18,7 @@ let institution = '';
 
 // Variables para el mapa, seguimiento y sockets
 let map;
-const userMarker = new mapboxgl.Marker();
+let = userMarker;
 let otherUsersMarkers = {};
 let watchId = null;
 // ubicacion disponible
@@ -397,8 +397,8 @@ function updatePosition(position) {
         // Crear un elemento personalizado para el marcador
         const el = document.createElement('div');
         el.className = 'user-marker';
-        el.style.width = '20px';
-        el.style.height = '20px';
+        el.style.width = '5px';
+        el.style.height = '5px';
         el.style.backgroundColor = '#dd5823ff';
         el.style.borderRadius = '50%';
         el.style.border = '3px solid white';
