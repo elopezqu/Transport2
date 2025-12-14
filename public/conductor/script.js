@@ -46,6 +46,8 @@ let map;
 let userMarker;
 let otherUsersMarkers = {};
 let watchId = null;
+let updateTimerId = null;
+let lastGeoPosition = null;
 // ubicacion disponible
 let isTracking = false;
 //Ruta cargada
@@ -279,7 +281,7 @@ function connectToServer() {
                 console.log("antes de guardar :", data.accuracy);
                 savePerformanceMetrics({
                     userId: id,
-                    latencia: data.accuracy.toFixed(2),
+                    latencia: data.accuracy.toFixed(1),
                     precision: networkLatency
                 });
             }
@@ -386,19 +388,27 @@ function startTracking() {
         timeout: 60000            // más tolerancia para obtener una lectura GPS precisa
     };
     
-    // Obtener ubicación actual
+    // Obtener ubicación actual (solo actualizar cache)
     navigator.geolocation.getCurrentPosition(
-        position => updatePosition(position),
+        position => { lastGeoPosition = position; updatePosition(position); },
         error => handleError(error),
         options
     );
     
-    // Observar cambios de ubicación
+    // Observar cambios de ubicación: solo actualizar cache, no llamar updatePosition directamente
     watchId = navigator.geolocation.watchPosition(
-        position => updatePosition(position),
+        position => { lastGeoPosition = position; },
         error => handleError(error),
         options
     );
+
+    // Llamar updatePosition cada segundo usando el último valor cacheado
+    if (updateTimerId) clearInterval(updateTimerId);
+    updateTimerId = setInterval(() => {
+        if (lastGeoPosition) {
+            updatePosition(lastGeoPosition);
+        }
+    }, 1000);
 }
 
 // Detener el seguimiento de ubicación
@@ -406,6 +416,10 @@ function stopTracking() {
     if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
+    }
+    if (updateTimerId !== null) {
+        clearInterval(updateTimerId);
+        updateTimerId = null;
     }
     
     // Actualizar interfaz
