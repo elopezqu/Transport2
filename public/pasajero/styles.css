@@ -174,7 +174,6 @@ button:disabled {
 }
 
 .user-list {
-    display: flex;
     flex-direction: column;
     gap: 0.6rem;
     max-height: 120px;
